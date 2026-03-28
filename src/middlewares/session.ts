@@ -1,10 +1,7 @@
 import { Context, Middleware, Scenes } from 'telegraf';
+import { CalendarOpSession } from '../core/types.js';
 
-export interface CalendarOpSession {
-  type: 'add' | 'remove' | 'update';
-  taskName: string;
-  calendarEventId?: string;
-}
+export type { CalendarOpSession } from '../core/types.js';
 
 export interface SessionData extends Scenes.SceneSession<Scenes.SceneSessionData> {
   calendarOps?: CalendarOpSession[];

@@ -5,11 +5,8 @@ import { getOctokit, getGitHubFileInfo } from '../clients/github.js';
 import { analyzeTaskDiff, hasChanges } from './diffAnalyzer.js';
 import { formatGitHubSyncMessage } from '../views/syncView.js';
 import { parseMarkdown } from './markdownParser.js';
-import {
-  BotContext,
-  CalendarOpSession,
-  setSessionData,
-} from '../middlewares/session.js';
+import { CalendarOpSession } from '../core/types.js';
+import { BotContext, setSessionData } from '../middlewares/session.js';
 import logger from '../core/logger.js';
 import { ALLOWED_USERS } from '../core/config.js';
 

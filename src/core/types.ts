@@ -117,3 +117,9 @@ export interface CommitInfo {
   author: string;
   url: string;
 }
+
+export interface CalendarOpSession {
+  type: 'add' | 'remove' | 'update';
+  taskName: string;
+  calendarEventId?: string;
+}
