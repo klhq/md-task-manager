@@ -29,7 +29,7 @@ A smart Telegram bot that manages your tasks in a Markdown file using AI\\. It p
 *Contribute:* [Pull Requests Welcome](${REPO_URL}/pulls)
     `.trim();
 
-    await ctx.replyWithMarkdownV2(message);
+    await ctx.reply(message, { parse_mode: 'MarkdownV2' });
   } catch (error) {
     logger.errorWithContext({
       userId: ctx.from?.id,

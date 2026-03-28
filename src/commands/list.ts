@@ -51,7 +51,7 @@ export const listCommand = async (ctx: Context) => {
 
     const message = `${title}\n\n${formatTaskListStr(tasksToDisplay, showStatus)}`;
 
-    ctx.replyWithMarkdownV2(message);
+    ctx.reply(message, { parse_mode: 'MarkdownV2' });
   } catch (error) {
     logger.errorWithContext({ userId: ctx.from?.id, op: Command.LIST, error });
     ctx.reply('❌ Error fetching tasks');
