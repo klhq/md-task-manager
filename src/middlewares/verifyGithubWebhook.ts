@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Context, Next } from 'hono';
 import crypto from 'crypto';
 import { AppError } from '../core/error.js';
 import logger from '../core/logger.js';
@@ -34,13 +34,9 @@ const verifyGitHubSignature = (
   );
 };
 
-export const verifyGithubWebhook = (
-  req: Request,
-  _res: Response,
-  next: NextFunction,
-) => {
-  const signature = req.headers['x-hub-signature-256'] as string | undefined;
-  const rawBody = JSON.stringify(req.body);
+export const verifyGithubWebhook = async (c: Context, next: Next) => {
+  const rawBody = await c.req.text();
+  const signature = c.req.header('x-hub-signature-256');
 
   if (!verifyGitHubSignature(rawBody, signature)) {
     logger.warnWithContext({
@@ -50,10 +46,11 @@ export const verifyGithubWebhook = (
     throw new AppError('Invalid signature', 401);
   }
 
-  const event = req.headers['x-github-event'] as string | undefined;
+  const event = c.req.header('x-github-event');
   if (event !== 'push') {
     throw new AppError(`Unsupported event type: ${event}`, 400);
   }
 
-  next();
+  c.set('parsedBody', JSON.parse(rawBody));
+  await next();
 };

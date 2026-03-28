@@ -1,7 +1,7 @@
-import type { Request, Response } from 'express';
+import type { Context } from 'hono';
 
-export const healthHandler = (_req: Request, res: Response): void => {
-  res.json({
+export const healthHandler = (c: Context) => {
+  return c.json({
     status: 'ok',
     message: 'Bot webhook server',
     timestamp: new Date().toISOString(),

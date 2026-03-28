@@ -1,17 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Context, Next } from 'hono';
 import { AppError } from '../core/error.js';
 
-// Security middleware for cron endpoint
-export const verifyCron = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const authHeader = req.headers.authorization;
+export const verifyCron = async (c: Context, next: Next) => {
+  const authHeader = c.req.header('authorization');
   const cronSecret = process.env.CRON_SECRET;
 
   if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     throw new AppError('Unauthorized', 401);
   }
-  next();
+  await next();
 };
