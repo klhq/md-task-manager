@@ -48,7 +48,7 @@ export const setTimezoneCommand = async (ctx: Context) => {
 
   try {
     Intl.DateTimeFormat(undefined, { timeZone: timezone });
-  } catch (e) {
+  } catch {
     return ctx.reply('❌ Invalid timezone ID. Please check /listtimezones');
   }
 
