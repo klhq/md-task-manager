@@ -51,7 +51,6 @@ export enum Command {
   EDIT = 'edit',
   REMOVE = 'remove',
   CLEARCOMPLETED = 'clearcompleted',
-  LISTTIMEZONES = 'listtimezones',
   ABOUT = 'about',
   SORT = 'sort',
 }
@@ -100,10 +99,6 @@ export const COMMANDS: Record<Command, CommandType> = {
   [Command.CLEARCOMPLETED]: {
     desc: 'clear all completed tasks',
     category: 'task-operation',
-  },
-  [Command.LISTTIMEZONES]: {
-    desc: 'list available timezones',
-    category: 'info',
   },
   [Command.ABOUT]: {
     desc: 'show bot information and repository',

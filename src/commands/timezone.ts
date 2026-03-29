@@ -1,19 +1,13 @@
+import { InlineKeyboard } from 'grammy';
 import { BotContext } from '../middlewares/session.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
 import logger from '../core/logger.js';
 import { extractArg } from '../utils/index.js';
-import { Command } from '../core/config.js';
+import { Command, COMMON_TIMEZONES } from '../core/config.js';
 import { toZonedTime, fromZonedTime, format } from 'date-fns-tz';
 import { Task } from '../core/types.js';
-import {
-  getNoTextMessage,
-  TIME_ZONE_LIST_MESSAGE,
-} from '../views/generalView.js';
-
-export const listTimezonesCommand = async (ctx: BotContext) => {
-  ctx.reply(TIME_ZONE_LIST_MESSAGE, { parse_mode: 'MarkdownV2' });
-};
+import { getNoTextMessage } from '../views/generalView.js';
 
 export const myTimezoneCommand = async (ctx: BotContext) => {
   try {
@@ -41,22 +35,27 @@ export const setTimezoneCommand = async (ctx: BotContext) => {
   const timezone = extractArg(text, Command.SETTIMEZONE);
 
   if (!timezone) {
-    return ctx.reply(
-      '❌ Please provide a timezone. Use /listtimezones to see available options.',
-    );
+    return ctx.reply('🌍 Select your timezone:', {
+      reply_markup: generateTimezoneKeyboard(),
+    });
   }
 
+  await applyTimezone(ctx, timezone);
+};
+
+// --- Shared logic ---
+
+export const applyTimezone = async (ctx: BotContext, timezone: string) => {
   try {
     Intl.DateTimeFormat(undefined, { timeZone: timezone });
   } catch {
-    return ctx.reply('❌ Invalid timezone ID. Please check /listtimezones');
+    return ctx.reply('❌ Invalid timezone ID. Use /settimezone to pick one.');
   }
 
   try {
     const { taskData, metadata } = await queryTasks();
     const oldTimezone = metadata.timezone;
 
-    // Only convert tasks if timezone is actually changing
     if (oldTimezone === timezone) {
       return ctx.reply(`Timezone is already set to: ${timezone}`);
     }
@@ -64,23 +63,18 @@ export const setTimezoneCommand = async (ctx: BotContext) => {
     metadata.timezone = timezone;
 
     if (!oldTimezone) {
-      // If no previous timezone, just set and save
       await saveTasks(taskData, metadata);
       return ctx.reply(`✅ Timezone set to: *${timezone}*`, {
         parse_mode: 'Markdown',
       });
     }
-    // Convert all task dates/times from old timezone to new timezone
+
     taskData.uncompleted = taskData.uncompleted.map((task: Task) => {
       if (task.date && task.time) {
         try {
-          // Parse date and time in old timezone
           const dateTimeStr = `${task.date}T${task.time}:00`;
           const dateInUtc = fromZonedTime(dateTimeStr, oldTimezone);
-
-          // Convert to new timezone
           const dateInNewTz = toZonedTime(dateInUtc, timezone);
-
           const formatted = format(dateInNewTz, 'yyyy-MM-dd HH:mm', {
             timeZone: timezone,
           });
@@ -92,7 +86,6 @@ export const setTimezoneCommand = async (ctx: BotContext) => {
             message: `Failed to convert timezone for task: ${task.name}`,
             error,
           });
-          // Keep original date/time if conversion fails
         }
       }
       return task;
@@ -112,4 +105,15 @@ export const setTimezoneCommand = async (ctx: BotContext) => {
     });
     await ctx.reply('❌ Failed to update timezone. Please try again.');
   }
+};
+
+// --- Keyboard ---
+
+const generateTimezoneKeyboard = (): InlineKeyboard => {
+  const keyboard = new InlineKeyboard();
+  for (const tz of COMMON_TIMEZONES) {
+    keyboard.text(tz.name, `tz_${tz.value}`).row();
+  }
+  keyboard.text('❌ Cancel', 'tz_cancel');
+  return keyboard;
 };

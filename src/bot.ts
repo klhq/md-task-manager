@@ -9,8 +9,8 @@ import { listCommand } from './commands/list.js';
 import { clearCompletedCommand } from './commands/clearCompleted.js';
 import {
   setTimezoneCommand,
-  listTimezonesCommand,
   myTimezoneCommand,
+  applyTimezone,
 } from './commands/timezone.js';
 import { editCommand } from './commands/edit.js';
 import { sortCommand } from './commands/sort.js';
@@ -62,7 +62,6 @@ opComposer.command(Command.EDIT, (ctx) => editCommand(ctx, enterEditScene));
 opComposer.command(Command.REMOVE, removeCommand);
 opComposer.command(Command.CLEARCOMPLETED, clearCompletedCommand);
 opComposer.command(Command.SETTIMEZONE, setTimezoneCommand);
-opComposer.command(Command.LISTTIMEZONES, listTimezonesCommand);
 opComposer.command(Command.MYTIMEZONE, myTimezoneCommand);
 opComposer.command(Command.TODAY, todayCommand);
 opComposer.command(Command.SORT, sortCommand);
@@ -71,6 +70,17 @@ opComposer.command(Command.SORT, sortCommand);
 registerSortAction(opComposer);
 registerCalendarAction(opComposer);
 registerTaskPickerAction(opComposer);
+
+opComposer.callbackQuery(/^tz_(.+)$/, async (ctx) => {
+  const value = ctx.match[1];
+  await ctx.answerCallbackQuery();
+  if (value === 'cancel') {
+    await ctx.editMessageText('❌ Timezone selection cancelled.');
+    return;
+  }
+  await ctx.editMessageText(`Setting timezone to ${value}...`);
+  await applyTimezone(ctx, value);
+});
 
 bot.use(infoComposer, opComposer);
 

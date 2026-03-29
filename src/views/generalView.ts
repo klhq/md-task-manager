@@ -1,4 +1,4 @@
-import { Command, COMMANDS, COMMON_TIMEZONES } from '../core/config.js';
+import { Command, COMMANDS } from '../core/config.js';
 import { escapeMarkdownV2, formatTaskListStr } from '../utils/index.js';
 import { format } from 'date-fns-tz';
 import { Task } from '../core/types.js';
@@ -56,18 +56,5 @@ ${taskOps}
 *Information*
 ${infoOps}
 
-*Getting Started:* Use /settimezone to configure your timezone before adding tasks\\. View available timezones with /listtimezones\\.
+*Getting Started:* Use /settimezone to configure your timezone before adding tasks\\.
 `;
-
-const TIME_ZONE_LIST = COMMON_TIMEZONES.map(
-  (tz, index) =>
-    `${index + 1}\\. ${escapeMarkdownV2(tz.name)} \\- \`${tz.value}\``,
-).join('\n');
-export const TIME_ZONE_LIST_MESSAGE = `
-*Available Timezones:*
-
-${TIME_ZONE_LIST}
-
-/settimezone to set your timezone
-
-Example: \`/settimezone Asia/Singapore\``;
