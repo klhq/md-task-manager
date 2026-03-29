@@ -1,20 +1,20 @@
 # Markdown Task Manager
 
-[![Version](https://img.shields.io/badge/version-1.6.0-green.svg)](package.json)
+[![Version](https://img.shields.io/badge/version-1.7.0-green.svg)](package.json)
 [![License: BUSL-1.1](https://img.shields.io/badge/License-BUSL--1.1-blue.svg)](LICENSE)
 [![Bun](https://img.shields.io/badge/runtime-Bun-f9f1e1?logo=bun)](https://bun.sh)
 [![Hono](https://img.shields.io/badge/framework-Hono-E36002?logo=hono)](https://hono.dev)
 [![grammY](https://img.shields.io/badge/bot-grammY-009dca)](https://grammy.dev)
 [![Deploy](https://img.shields.io/badge/deploy-Vercel-000?logo=vercel)](https://vercel.com)
 
-A Telegram bot that manages tasks using a Markdown file on GitHub. Uses **Google Gemini AI** for natural language processing and integrates with **Google Calendar**.
+A Telegram bot that manages tasks using a Markdown file on GitHub. Uses AI for natural language processing (supports **Gemini**, **OpenAI**, **Anthropic**, and OpenAI-compatible providers) and integrates with **Google Calendar**.
 
 Try it: [@LazyMdTaskBot](https://t.me/LazyMdTaskBot)
 
 ## Features
 
 - **Markdown-as-Database**: Tasks stored in a GitHub Markdown table, editable directly
-- **AI-Powered**: Natural language parsing with Google Gemini (e.g., "Meeting tomorrow at 3pm")
+- **AI-Powered**: Natural language parsing with multiple LLM providers (e.g., "Meeting tomorrow at 3pm")
 - **Google Calendar Sync**: Automatic event creation/updates
 - **Timezone Support**: Multi-timezone handling
 - **Daily Reminders**: Scheduled task summaries
@@ -41,7 +41,7 @@ Try it: [@LazyMdTaskBot](https://t.me/LazyMdTaskBot)
 
 - Telegram Bot Token ([@BotFather](https://t.me/BotFather))
 - GitHub Personal Access Token (with `repo` scope)
-- Google Gemini API Key ([Google AI Studio](https://aistudio.google.com/))
+- AI Provider API Key (Gemini, OpenAI, or Anthropic)
 - Google Cloud Service Account (optional, for Calendar sync)
 
 ### Configuration
@@ -52,8 +52,12 @@ Try it: [@LazyMdTaskBot](https://t.me/LazyMdTaskBot)
 | `TELEGRAM_BOT_WHITELIST`           | Comma-separated list of Telegram User IDs allowed to use the bot.                    | Yes                        |
 | `PROVIDER_API_KEY`                     | GitHub Personal Access Token.                                                        | Yes                        |
 | `FILE_PATH`                      | Full URL to the blob file (e.g., `https://github.com/user/repo/blob/main/tasks.md`). | Yes                        |
-| `GEMINI_API_KEY`                   | Google Gemini API Key.                                                               | Yes                        |
-| `AI_MODEL`                         | Gemini model to use (default: `gemini-2.0-flash`).                                   | No                         |
+| `AI_PROVIDER`                      | AI provider: `gemini`, `openai`, or `anthropic`.                                     | Yes                        |
+| `AI_MODEL`                         | Model name (e.g., `gemini-2.5-flash`, `gpt-4o`, `claude-sonnet-4-20250514`).         | Yes                        |
+| `GOOGLE_GENERATIVE_AI_KEY`         | Gemini API Key (required if `AI_PROVIDER=gemini`).                                   | Conditional                |
+| `OPENAI_API_KEY`                   | OpenAI API Key (required if `AI_PROVIDER=openai`).                                   | Conditional                |
+| `OPENAI_BASE_URL`                  | Custom base URL for OpenAI-compatible providers (Groq, Together, Ollama).             | No                         |
+| `ANTHROPIC_API_KEY`                | Anthropic API Key (required if `AI_PROVIDER=anthropic`).                              | Conditional                |
 | `GOOGLE_CALENDAR_ID`               | The ID of the Google Calendar to sync with.                                          | Optional                   |
 | `GOOGLE_CALENDAR_CREDENTIALS_PATH` | Path to local service account JSON (for local dev).                                  | Optional                   |
 | `CRON_SECRET`                      | Secret key for securing the cron endpoint.                                           | Yes                        |

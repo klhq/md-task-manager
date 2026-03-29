@@ -12,7 +12,7 @@ import { Command, EDITABLE_FIELDS } from '../core/config.js';
 import { EditableField, Priority, Task } from '../core/types.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
-import { generateAiTask } from '../clients/gemini.js';
+import { generateAiTask } from '../clients/ai.js';
 import logger from '../core/logger.js';
 
 const isValidField = (field: string): field is EditableField =>

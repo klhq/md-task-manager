@@ -1,7 +1,4 @@
 import { EditableField, Field } from './types.js';
-import { format } from 'date-fns-tz';
-
-export const AI_MODEL = process.env.AI_MODEL || 'gemini-2.0-flash';
 
 export const IS_PROD = process.env.NODE_ENV === 'production';
 
@@ -131,72 +128,6 @@ export const COMMON_TIMEZONES = [
   { name: '(UTC-5) New York, Toronto', value: 'America/New_York' },
   { name: '(UTC-3) São Paulo, Buenos Aires', value: 'America/Sao_Paulo' },
 ] as const;
-
-export const GEMINI_JSON_SCHEMA = {
-  type: 'OBJECT',
-  properties: {
-    name: { type: 'STRING', description: 'Concise title of the task.' },
-    date: {
-      type: 'STRING',
-      description: 'YYYY-MM-DD format based on timezone. Use "" if missing.',
-    },
-    time: {
-      type: 'STRING',
-      description: '24h HH:MM format. Use "" if missing.',
-    },
-    duration: {
-      type: 'STRING',
-      description:
-        'H:MM format. Default to "1:00" if date/time exist but duration is missing.',
-    },
-    description: {
-      type: 'STRING',
-      description: 'AI-generated insight/note. DO NOT include tags here.',
-    },
-    link: {
-      type: 'STRING',
-      description:
-        'Official resolved URL for brands (e.g., shopee.tw) or the raw URL.',
-    },
-  },
-  required: ['name', 'date', 'time', 'duration', 'description', 'link'],
-} as const;
-
-export const getGeminiSystemPrompt = (timezone: string) => {
-  const now = new Date();
-  const todayInTz = format(now, 'yyyy-MM-dd', { timeZone: timezone });
-  const dayOfWeekInTz = format(now, 'EEEE', { timeZone: timezone });
-
-  return `
-You are a high-precision Task Extraction Engine.
-
-### CONTEXT
-- Current Date: ${todayInTz}
-- Current Day: ${dayOfWeekInTz}
-- User Timezone: ${timezone}
-
-### RECURRING TASK BLOCKER
-If the input implies a recurring event (e.g., "every Monday", "daily", "each weekend", "everyday"), return this JSON error state:
-{ "name": "", "date": "", "time": "", "duration": "", "description": "ERROR: Recurring tasks are not supported.", "link": "" }
-
-### LOGIC & EXTRACTION RULES
-1. **Date**: Convert relative terms (tomorrow, next Friday) to YYYY-MM-DD based on the ${todayInTz} context. If no date is found, return "".
-2. **Time**: Convert to 24h HH:MM. If no time is found, return "".
-3. **Duration (H:MM)**:
-   - If Date + Time exist but no duration: Default to "1:00".
-   - If Date is missing: Return "".
-4. **Link Resolution**:
-   - If a URL is in the text, use it. 
-   - If a brand is mentioned, resolve to its official domain.
-   - Regional Bias: Use .tw domains for regional brands (e.g., Shopee -> https://shopee.tw) unless timezone suggests otherwise.
-5. **AI Description Insight**: 
-   - Generate a brief (max 15 words) helpful insight, background, or instruction.
-   - **STRICT RULE**: Do NOT include the user's tags in the description.
-
-### OUTPUT
-- Return ONLY valid JSON matching the schema.
-`;
-};
 
 // Editable fields for tasks
 export const EDITABLE_FIELDS: EditableField[] = [

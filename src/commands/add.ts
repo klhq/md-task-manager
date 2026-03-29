@@ -10,7 +10,7 @@ import {
 } from '../utils/index.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
-import { generateAiTask } from '../clients/gemini.js';
+import { generateAiTask } from '../clients/ai.js';
 import { getNoTextMessage } from '../views/generalView.js';
 import logger from '../core/logger.js';
 import { Task } from '../core/types.js';
