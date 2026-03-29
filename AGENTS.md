@@ -4,41 +4,40 @@ This document serves as the primary instruction manual for AI agents and develop
 
 ## 1. Project Overview
 
-**Stack**: TypeScript, Node.js (v24.x), Express, Telegraf (Telegram Bot).
+**Stack**: TypeScript, Bun, Hono, grammY (Telegram Bot).
 **Deployment**: Vercel (Serverless).
 **Database**: GitHub Markdown File (No SQL/NoSQL DB).
 **AI**: Google Gemini (via `@google/genai`).
 
 ## 2. Environment & Setup
 
-- **Package Manager**: `pnpm` (v8+ recommended).
-- **Node Version**: `24.x` (Defined in `package.json` engines).
+- **Runtime & Package Manager**: Bun.
 - **Module System**: ESM (`type: "module"`).
 
 ### Installation
 
 ```bash
-pnpm install
+bun install
 ```
 
 ## 3. Development Commands
 
-| Command         | Description                            | Notes                                          |
-| :-------------- | :------------------------------------- | :--------------------------------------------- |
-| `pnpm dev`      | Start local dev server with hot-reload | Uses `tsx watch`. Best for active development. |
-| `pnpm build`    | Compile TypeScript to `dist/`          | Uses `tsc`. Run before deployment.             |
-| `pnpm start`    | Run the compiled production build      | Runs `node dist/api/index.js`.                 |
-| `pnpm lint`     | Run ESLint                             | Checks for code quality issues.                |
-| `pnpm lint:fix` | Fix ESLint errors                      | Automatically fixes fixable issues.            |
-| `pnpm format`   | Run Prettier                           | Formats all source files.                      |
+| Command             | Description                            | Notes                                          |
+| :------------------ | :------------------------------------- | :--------------------------------------------- |
+| `bun run dev`       | Start local dev server with hot-reload | Uses `bun --watch`. Best for active development. |
+| `bun run build`     | Type-check the project                 | Uses `tsc --noEmit`. No output emitted.        |
+| `bun run start`     | Run the app directly                   | Runs `bun run src/app.ts`.                     |
+| `bun run lint`      | Run ESLint                             | Checks for code quality issues.                |
+| `bun run lint:fix`  | Fix ESLint errors                      | Automatically fixes fixable issues.            |
+| `bun run format`    | Run Prettier                           | Formats all source files.                      |
 
 ### Testing
 
 **Status**: No automated test suite exists currently.
 
-- **Verification**: Relies on `pnpm lint`, `pnpm build`, and manual verification via `pnpm dev`.
-- **Single Test**: If tests are added in the future, use `pnpm test <file>` (standard convention).
-- **Agent Action**: When refactoring, ensure `pnpm build` passes.
+- **Verification**: Relies on `bun run lint`, `bun run build`, and manual verification via `bun run dev`.
+- **Single Test**: If tests are added in the future, use `bun test <file>`.
+- **Agent Action**: When refactoring, ensure `bun run build` passes.
 
 ## 4. Code Standards & Style
 
@@ -102,7 +101,7 @@ src/
 ## 6. Development Rules for Agents
 
 1.  **Imports**: Always check for the `.js` extension in imports. The build will fail without it.
-2.  **Linting**: Run `pnpm lint` after making changes to ensure no regressions.
+2.  **Linting**: Run `bun run lint` after making changes to ensure no regressions.
 3.  **Refactoring**:
     - If moving files, update imports using `sed` or `ast-grep`.
     - Ensure file naming follows `camelCase`.
@@ -120,7 +119,7 @@ src/
 | :-------------- | :-------------------------------------- |
 | `package.json`  | Scripts and dependencies.               |
 | `tsconfig.json` | TS compiler options (ES2020, NodeNext). |
-| `.eslintrc.cjs` | Linting rules (TS + Prettier).          |
+| `eslint.config.mjs` | Linting rules (TS + Prettier).     |
 | `.prettierrc`   | Formatting rules.                       |
 | `.env.example`  | Template for environment variables.     |
 

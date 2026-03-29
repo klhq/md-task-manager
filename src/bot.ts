@@ -1,5 +1,4 @@
 import dns from 'dns';
-import https from 'https';
 import { Bot, Composer } from 'grammy';
 import { Command, IS_PROD } from './core/config.js';
 import logger from './core/logger.js';
@@ -36,13 +35,7 @@ if (!IS_PROD) {
   dns.setDefaultResultOrder('ipv4first');
 }
 
-const bot = new Bot<BotContext>(token, {
-  client: {
-    baseFetchConfig: !IS_PROD
-      ? { agent: new https.Agent({ family: 4, keepAlive: true }) }
-      : undefined,
-  },
-});
+const bot = new Bot<BotContext>(token);
 
 bot.use(sessionMiddleware);
 

@@ -1,4 +1,3 @@
-import 'dotenv/config';
 import { Hono } from 'hono';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import { webhookCallback } from 'grammy';
@@ -78,32 +77,5 @@ app.onError((err, c) => {
     statusCode as ContentfulStatusCode,
   );
 });
-
-// Local development server
-if (!IS_PROD) {
-  const { serve } = await import('@hono/node-server');
-  const PORT = Number(process.env.PORT) || 3000;
-
-  const server = serve({ fetch: app.fetch, port: PORT }, () => {
-    logger.infoWithContext({
-      message: `Server running on http://localhost:${PORT}`,
-    });
-    logger.infoWithContext({
-      message: 'Webhook endpoint ready at /api',
-    });
-  });
-
-  const gracefulShutdown = (signal: string) => {
-    logger.infoWithContext({
-      message: `${signal} received, shutting down gracefully`,
-    });
-
-    server.close();
-    process.exit(0);
-  };
-
-  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
-}
 
 export default app;

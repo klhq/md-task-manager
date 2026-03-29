@@ -1,5 +1,11 @@
 # Markdown Task Manager
 
+[![License: BUSL-1.1](https://img.shields.io/badge/License-BUSL--1.1-blue.svg)](LICENSE)
+[![Bun](https://img.shields.io/badge/runtime-Bun-f9f1e1?logo=bun)](https://bun.sh)
+[![Hono](https://img.shields.io/badge/framework-Hono-E36002?logo=hono)](https://hono.dev)
+[![grammY](https://img.shields.io/badge/bot-grammY-009dca)](https://grammy.dev)
+[![Deploy](https://img.shields.io/badge/deploy-Vercel-000?logo=vercel)](https://vercel.com)
+
 A Telegram bot that manages tasks using a Markdown file on GitHub. Uses **Google Gemini AI** for natural language processing and integrates with **Google Calendar**.
 
 Try it: [@LazyMdTaskBot](https://t.me/LazyMdTaskBot)
@@ -18,7 +24,7 @@ Try it: [@LazyMdTaskBot](https://t.me/LazyMdTaskBot)
 1. **Install dependencies**
 
    ```bash
-   pnpm install
+   bun install
    ```
 
 2. **Configure environment**
@@ -65,10 +71,10 @@ Instead of `GOOGLE_CALENDAR_CREDENTIALS_PATH`, set these individual variables:
 Start the development server:
 
 ```bash
-pnpm dev
+bun run dev
 ```
 
-The bot uses polling in development (if not configured for webhooks) or you can use `ngrok` to tunnel the webhook to localhost.
+Use `ngrok` or similar to tunnel the webhook to localhost.
 
 ## 🛠 Usage
 
