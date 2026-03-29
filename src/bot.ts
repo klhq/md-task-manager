@@ -2,7 +2,7 @@ import dns from 'dns';
 import { Bot, Composer } from 'grammy';
 import { Command, IS_PROD } from './core/config.js';
 import logger from './core/logger.js';
-import { addCommand } from './commands/add.js';
+import { addCommand, addSceneComposer } from './commands/add.js';
 import { completeCommand } from './commands/complete.js';
 import { removeCommand } from './commands/remove.js';
 import { listCommand } from './commands/list.js';
@@ -51,7 +51,8 @@ infoComposer.command(Command.ABOUT, aboutCommand);
 
 export const opComposer = new Composer<BotContext>();
 
-// Scene composer must be mounted before commands for scene isolation
+// Scene composers must be mounted before commands for session isolation
+opComposer.use(addSceneComposer);
 opComposer.use(editSceneComposer);
 opComposer.use(whitelist);
 

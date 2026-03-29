@@ -15,6 +15,7 @@ export interface EditSceneState {
 
 export interface SessionData {
   editScene?: EditSceneState;
+  awaitingAdd?: boolean;
 }
 
 export type BotContext = Context & SessionFlavor<SessionData>;

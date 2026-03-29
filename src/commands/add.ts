@@ -1,4 +1,4 @@
-import { InlineKeyboard } from 'grammy';
+import { Composer, InlineKeyboard } from 'grammy';
 import { Command } from '../core/config.js';
 import {
   extractArg,
@@ -11,10 +11,7 @@ import {
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
 import { generateAiTask } from '../clients/gemini.js';
-import {
-  getNoTaskNameMessage,
-  getNoTextMessage,
-} from '../views/generalView.js';
+import { getNoTextMessage } from '../views/generalView.js';
 import logger from '../core/logger.js';
 import { Task } from '../core/types.js';
 import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
@@ -28,9 +25,29 @@ export const addCommand = async (ctx: BotContext) => {
   const arg = extractArg(text, Command.ADD);
 
   if (!arg) {
-    return ctx.reply(getNoTaskNameMessage(Command.ADD));
+    ctx.session.awaitingAdd = true;
+    return ctx.reply(
+      '📝 What task would you like to add?\n\n_e.g. "Buy groceries tomorrow at 15:00 #shopping"_',
+      { parse_mode: 'Markdown' },
+    );
   }
 
+  await processAdd(ctx, arg);
+};
+
+// Composer to handle the follow-up text message
+export const addSceneComposer = new Composer<BotContext>();
+
+addSceneComposer.on('message:text', async (ctx, next) => {
+  if (!ctx.session.awaitingAdd) return next();
+
+  ctx.session.awaitingAdd = undefined;
+  await processAdd(ctx, ctx.message.text);
+});
+
+// --- Core add logic ---
+
+const processAdd = async (ctx: BotContext, input: string) => {
   try {
     const { metadata, taskData } = await queryTasks();
 
@@ -42,7 +59,7 @@ export const addCommand = async (ctx: BotContext) => {
 
     let task;
     try {
-      task = await processNewTask(arg, metadata.timezone);
+      task = await processNewTask(input, metadata.timezone);
     } catch (error) {
       return ctx.reply(
         `❌ ${error instanceof Error ? error.message : 'Failed to add task due to an unknown error.'}`,
@@ -54,19 +71,14 @@ export const addCommand = async (ctx: BotContext) => {
       taskData.uncompleted,
     );
 
-    // Constraint: Time conflict check
     if (timeConflictingTask) {
       return ctx.reply(
         `❌ Time conflict with existing task: "${timeConflictingTask.name}" (Date: ${timeConflictingTask.date}, Time: ${formatTimeRange(timeConflictingTask.time!, timeConflictingTask.duration!)})`,
       );
     }
 
-    // Constraint: Check name uniqueness
     task.name = getUniqueTaskName(task.name, taskData.uncompleted);
-
-    // Add the new task to uncompleted tasks
     taskData.uncompleted.unshift(task);
-
     await saveTasks(taskData, metadata);
 
     const response = formatOperatedTaskStr(task, {
@@ -92,29 +104,25 @@ export const addCommand = async (ctx: BotContext) => {
   }
 };
 
+// --- Helpers ---
+
 const getUniqueTaskName = (taskName: string, tasks: Task[]): string => {
   let uniqueName = taskName;
 
-  // Check if name already exists
   if (findTaskIdxByName(tasks, uniqueName) === -1) {
     return uniqueName;
   }
 
-  // Extract base name and counter if exists
   const match = taskName.match(/^(.+?)\s*\((\d+)\)$/);
 
   if (match) {
-    // Name already has a counter like "Task (2)"
     const baseName = match[1];
     let counter = parseInt(match[2], 10);
-
-    // Increment counter until we find a unique name
     do {
       counter++;
       uniqueName = `${baseName} (${counter})`;
     } while (findTaskIdxByName(tasks, uniqueName) !== -1);
   } else {
-    // Name doesn't have a counter, start with (1)
     let counter = 1;
     do {
       uniqueName = `${taskName} (${counter})`;
@@ -130,7 +138,6 @@ const processNewTask = async (
   timezone: string,
 ): Promise<Task> => {
   const { tags, text } = parseUserText(userText);
-
   const task = await generateAiTask(text, tags, timezone);
   return { completed: false, ...task, tags };
 };
