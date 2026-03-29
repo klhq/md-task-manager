@@ -1,9 +1,9 @@
-import { Context, Middleware, Scenes } from 'telegraf';
+import { Context, SessionFlavor, session } from 'grammy';
 import { CalendarOpSession, EditableField } from '../core/types.js';
 
 export type { CalendarOpSession } from '../core/types.js';
 
-// --- EditScene state (used by the grammy Composer that replaces Telegraf scenes) ---
+// --- EditScene state ---
 
 export interface EditSceneState {
   active: boolean;
@@ -13,50 +13,17 @@ export interface EditSceneState {
 
 // --- Session types ---
 
-export interface SessionData extends Scenes.SceneSession<Scenes.SceneSessionData> {
+export interface SessionData {
   editScene?: EditSceneState;
 }
 
-export interface BotContext extends Scenes.SceneContext {
-  session: SessionData;
-}
+export type BotContext = Context & SessionFlavor<SessionData>;
 
-// Re-declare for simple-context callers (merged via declaration merging)
-export interface BotContext extends Context {
-  session: SessionData;
-}
+// --- grammy session middleware ---
 
-// --- Telegraf session middleware (kept until bot.ts migrates) ---
-
-const sessions = new Map<string, SessionData>();
-
-const getSessionKey = (ctx: Context): string | undefined => {
-  const fromId = ctx.from?.id;
-  const chatId = ctx.chat?.id;
-  if (!fromId || !chatId) {
-    return undefined;
-  }
-  return `${fromId}:${chatId}`;
-};
-
-export const sessionMiddleware = (): Middleware<BotContext> => {
-  return async (ctx, next) => {
-    const key = getSessionKey(ctx);
-    if (!key) {
-      ctx.session = {};
-      return next();
-    }
-
-    let session = sessions.get(key);
-    if (!session) {
-      session = {};
-      sessions.set(key, session);
-    }
-
-    ctx.session = session;
-    await next();
-  };
-};
+export const sessionMiddleware = session<SessionData, BotContext>({
+  initial: () => ({}),
+});
 
 // --- Standalone pending calendar ops ---
 

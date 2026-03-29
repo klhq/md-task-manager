@@ -8,12 +8,15 @@ import {
 import logger from '../core/logger.js';
 import { BotContext } from '../middlewares/session.js';
 
-export const editCommand = async (ctx: BotContext) => {
+export const editCommand = async (
+  ctx: BotContext,
+  enterEditScene: (ctx: BotContext, taskIdx: number) => Promise<void>,
+) => {
   if (!ctx.message || !('text' in ctx.message)) {
     return ctx.reply('❌ Please provide a task name to edit');
   }
 
-  const text = ctx.message.text;
+  const text = ctx.message.text!;
   const arg = extractArg(text, Command.EDIT);
 
   if (!arg) {
@@ -33,7 +36,7 @@ export const editCommand = async (ctx: BotContext) => {
       return ctx.reply(TASK_NOT_FOUND_MESSAGE);
     }
 
-    await ctx.scene.enter('edit-task', { taskIdx });
+    await enterEditScene(ctx, taskIdx);
   } catch (error) {
     ctx.reply('❌ Error initiating edit. Please try again.');
     logger.errorWithContext({ userId: ctx.from?.id, op: Command.EDIT, error });

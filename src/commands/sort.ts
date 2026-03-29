@@ -1,10 +1,10 @@
-import { Context } from 'telegraf';
+import { BotContext } from '../middlewares/session.js';
 import { Command } from '../core/config.js';
 import { queryTasks } from '../services/queryTasks.js';
 import logger from '../core/logger.js';
 import { generateSortKeyboard } from '../actions/sort.js';
 
-export const sortCommand = async (ctx: Context) => {
+export const sortCommand = async (ctx: BotContext) => {
   try {
     const { taskData } = await queryTasks();
 
@@ -16,7 +16,7 @@ export const sortCommand = async (ctx: Context) => {
       '🔀 *Sort Tasks*\n\nChoose how to sort your uncompleted tasks:',
       {
         parse_mode: 'MarkdownV2',
-        ...generateSortKeyboard(),
+        reply_markup: generateSortKeyboard(),
       },
     );
   } catch (error) {

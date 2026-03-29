@@ -1,13 +1,9 @@
-import type { Middleware } from 'telegraf';
+import type { MiddlewareFn } from 'grammy';
 import { ALLOWED_USERS } from '../core/config.js';
 import logger from '../core/logger.js';
 import { BotContext } from './session.js';
 
-/**
- * Whitelist middleware for bot commands.
- * Enforces whitelist-based access control.
- */
-export const whitelist: Middleware<BotContext> = async (ctx, next) => {
+export const whitelist: MiddlewareFn<BotContext> = async (ctx, next) => {
   try {
     const userId = ctx.from?.id;
 

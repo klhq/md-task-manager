@@ -1,5 +1,5 @@
 import type { Context } from 'hono';
-import type { Telegraf } from 'telegraf';
+import type { Bot } from 'grammy';
 import logger from '../core/logger.js';
 import { ALLOWED_USERS } from '../core/config.js';
 import { queryTasks } from '../services/queryTasks.js';
@@ -7,7 +7,7 @@ import { getTasksByDay } from '../utils/index.js';
 import { getTodaysTasksMessage } from '../views/generalView.js';
 import { BotContext } from '../middlewares/session.js';
 
-export const cronHandler = async (c: Context, bot: Telegraf<BotContext>) => {
+export const cronHandler = async (c: Context, bot: Bot<BotContext>) => {
   const { taskData, metadata } = await queryTasks();
 
   if (!metadata.timezone) {
@@ -38,7 +38,7 @@ export const cronHandler = async (c: Context, bot: Telegraf<BotContext>) => {
     'Daily Reminder',
   );
 
-  await bot.telegram.sendMessage(ALLOWED_USERS[0], message, {
+  await bot.api.sendMessage(ALLOWED_USERS[0], message, {
     parse_mode: 'MarkdownV2',
   });
 

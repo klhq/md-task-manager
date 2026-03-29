@@ -1,4 +1,4 @@
-import { Context } from 'telegraf';
+import { BotContext } from '../middlewares/session.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
 import logger from '../core/logger.js';
@@ -11,11 +11,11 @@ import {
   TIME_ZONE_LIST_MESSAGE,
 } from '../views/generalView.js';
 
-export const listTimezonesCommand = async (ctx: Context) => {
+export const listTimezonesCommand = async (ctx: BotContext) => {
   ctx.reply(TIME_ZONE_LIST_MESSAGE, { parse_mode: 'MarkdownV2' });
 };
 
-export const myTimezoneCommand = async (ctx: Context) => {
+export const myTimezoneCommand = async (ctx: BotContext) => {
   try {
     const { metadata } = await queryTasks();
     const timezone = metadata.timezone || 'Not set';
@@ -32,12 +32,12 @@ export const myTimezoneCommand = async (ctx: Context) => {
   }
 };
 
-export const setTimezoneCommand = async (ctx: Context) => {
+export const setTimezoneCommand = async (ctx: BotContext) => {
   if (!ctx.message || !('text' in ctx.message)) {
     return ctx.reply(getNoTextMessage(Command.SETTIMEZONE));
   }
 
-  const text = ctx.message.text;
+  const text = ctx.message.text!;
   const timezone = extractArg(text, Command.SETTIMEZONE);
 
   if (!timezone) {

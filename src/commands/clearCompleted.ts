@@ -1,10 +1,10 @@
-import { Context } from 'telegraf';
+import { BotContext } from '../middlewares/session.js';
 import logger from '../core/logger.js';
 import { Command } from '../core/config.js';
 import { saveTasks } from '../services/saveTasks.js';
 import { queryTasks } from '../services/queryTasks.js';
 
-export const clearCompletedCommand = async (ctx: Context) => {
+export const clearCompletedCommand = async (ctx: BotContext) => {
   try {
     const { taskData, metadata } = await queryTasks();
     taskData.completed = [];

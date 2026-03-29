@@ -1,5 +1,4 @@
-import { Scenes, Markup } from 'telegraf';
-import { message } from 'telegraf/filters';
+import { Composer, InlineKeyboard } from 'grammy';
 import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
 import {
   escapeMarkdownV2,
@@ -15,11 +14,6 @@ import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
 import { generateAiTask } from '../clients/gemini.js';
 import logger from '../core/logger.js';
-
-interface EditSceneState {
-  taskIdx: number;
-  field?: EditableField;
-}
 
 const isValidField = (field: string): field is EditableField =>
   (EDITABLE_FIELDS as readonly string[]).includes(field);
@@ -41,64 +35,56 @@ const generateEditKeyboard = (task: Task) => {
   const fields = Array.from(EDITABLE_FIELDS).filter((field) =>
     isFieldEditable(field, task),
   );
-  const buttons = [];
+  const keyboard = new InlineKeyboard();
 
   for (let i = 0; i < fields.length; i += 2) {
-    const row = [
-      Markup.button.callback(capitalize(fields[i]), `edit_${fields[i]}`),
-    ];
+    keyboard.text(capitalize(fields[i]), `edit_${fields[i]}`);
     if (i + 1 < fields.length) {
-      row.push(
-        Markup.button.callback(
-          capitalize(fields[i + 1]),
-          `edit_${fields[i + 1]}`,
-        ),
-      );
+      keyboard.text(capitalize(fields[i + 1]), `edit_${fields[i + 1]}`);
     }
-    buttons.push(row);
+    keyboard.row();
   }
 
-  const cancelButton = Markup.button.callback('❌ Cancel', 'edit_cancel');
-  if (buttons.length > 0 && buttons[buttons.length - 1].length === 1) {
-    buttons[buttons.length - 1].push(cancelButton);
-  } else {
-    buttons.push([cancelButton]);
-  }
+  // Add cancel to last row
+  keyboard.text('❌ Cancel', 'edit_cancel');
 
-  return Markup.inlineKeyboard(buttons);
+  return keyboard;
 };
 
-export const editTaskScene = new Scenes.BaseScene<BotContext>('edit-task');
+export const editSceneComposer = new Composer<BotContext>();
 
-// Enter handler: User has run /edit <task>
-// The caller (command) should have set state.taskIdx
-editTaskScene.enter(async (ctx) => {
-  const state = ctx.scene.state as EditSceneState;
+export const enterEditScene = async (ctx: BotContext, taskIdx: number) => {
   const { taskData } = await queryTasks();
-  const task = taskData.uncompleted[state.taskIdx];
+  const task = taskData.uncompleted[taskIdx];
 
   if (!task) {
     await ctx.reply('❌ Task not found.');
-    return ctx.scene.leave();
+    return;
   }
+
+  ctx.session.editScene = { active: true, taskIdx };
 
   await ctx.reply(
     `Select a field to edit for *${escapeMarkdownV2(task.name)}*:`,
     {
       parse_mode: 'MarkdownV2',
-      ...generateEditKeyboard(task),
+      reply_markup: generateEditKeyboard(task),
     },
   );
-});
+};
 
 // Action handler: User clicked a field button
-editTaskScene.action(/^edit_(.+)$/, async (ctx) => {
+editSceneComposer.callbackQuery(/^edit_(.+)$/, async (ctx) => {
+  const state = ctx.session.editScene;
+  if (!state?.active) return;
+
   const action = ctx.match[1];
-  const state = ctx.scene.state as EditSceneState;
+  await ctx.answerCallbackQuery();
 
   if (action === 'cancel') {
+    ctx.session.editScene = undefined;
     await ctx.editMessageText('❌ Edit cancelled.');
-    return ctx.scene.leave();
+    return;
   }
 
   if (isValidField(action)) {
@@ -107,16 +93,16 @@ editTaskScene.action(/^edit_(.+)$/, async (ctx) => {
       `✏️ Please enter the new value for *${escapeMarkdownV2(action)}*:`,
       { parse_mode: 'MarkdownV2' },
     );
-  } else {
-    await ctx.answerCbQuery('⚠️ Unknown field');
   }
-
-  return ctx.answerCbQuery();
 });
 
 // Text handler: User typed the new value
-editTaskScene.on(message('text'), async (ctx) => {
-  const state = ctx.scene.state as EditSceneState;
+editSceneComposer.on('message:text', async (ctx, next) => {
+  const state = ctx.session.editScene;
+  if (!state?.active) {
+    return next();
+  }
+
   if (!state.field) {
     return ctx.reply('⚠️ Please select a field first.');
   }
@@ -132,13 +118,15 @@ editTaskScene.on(message('text'), async (ctx) => {
       await ctx.reply(
         '❌ Timezone not set. Please set your timezone first using /settimezone command.',
       );
-      return ctx.scene.leave();
+      ctx.session.editScene = undefined;
+      return;
     }
 
     const oldTask = taskData.uncompleted[state.taskIdx];
     if (!oldTask) {
       await ctx.reply('❌ Task not found.');
-      return ctx.scene.leave();
+      ctx.session.editScene = undefined;
+      return;
     }
 
     let updatedTask = validateAndGetUpdatedTask(
@@ -155,7 +143,8 @@ editTaskScene.on(message('text'), async (ctx) => {
         )}*\\. No changes made\\.`,
         { parse_mode: 'MarkdownV2' },
       );
-      return ctx.scene.leave();
+      ctx.session.editScene = undefined;
+      return;
     }
 
     if (fieldToUpdate === 'name') {
@@ -169,7 +158,7 @@ editTaskScene.on(message('text'), async (ctx) => {
 
     taskData.uncompleted[state.taskIdx] = updatedTask;
     await saveTasks(taskData, metadata);
-    console.log('hi');
+
     await ctx.reply(
       formatOperatedTaskStr(updatedTask, {
         command: Command.EDIT,
@@ -192,13 +181,11 @@ editTaskScene.on(message('text'), async (ctx) => {
             calendarEventId: oldTask.calendarEventId,
           },
         ]);
-        await ctx.reply(
-          'Update Google Calendar Event?',
-          Markup.inlineKeyboard([
-            Markup.button.callback('Yes', 'cal_yes'),
-            Markup.button.callback('No', 'cal_no'),
-          ]),
-        );
+        await ctx.reply('Update Google Calendar Event?', {
+          reply_markup: new InlineKeyboard()
+            .text('Yes', 'cal_yes')
+            .text('No', 'cal_no'),
+        });
       }
     } else {
       if (
@@ -212,13 +199,11 @@ editTaskScene.on(message('text'), async (ctx) => {
             taskName: updatedTask.name,
           },
         ]);
-        await ctx.reply(
-          'Add this task to Google Calendar?',
-          Markup.inlineKeyboard([
-            Markup.button.callback('Yes', 'cal_yes'),
-            Markup.button.callback('No', 'cal_no'),
-          ]),
-        );
+        await ctx.reply('Add this task to Google Calendar?', {
+          reply_markup: new InlineKeyboard()
+            .text('Yes', 'cal_yes')
+            .text('No', 'cal_no'),
+        });
       }
     }
   } catch (error) {
@@ -228,10 +213,10 @@ editTaskScene.on(message('text'), async (ctx) => {
     logger.errorWithContext({ userId, op: Command.EDIT, error });
   }
 
-  return ctx.scene.leave();
+  ctx.session.editScene = undefined;
 });
 
-// -- Helpers (duplicated from edit.ts for now, or move to utils) --
+// -- Helpers --
 
 const validateAndGetUpdatedTask = (
   unCompletedTasks: Task[],

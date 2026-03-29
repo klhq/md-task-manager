@@ -1,4 +1,3 @@
-import { Context } from 'telegraf';
 import { format } from 'date-fns-tz';
 import { Command } from '../core/config.js';
 import { extractArg, findTaskIdxByName } from '../utils/index.js';
@@ -10,14 +9,15 @@ import {
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
 import logger from '../core/logger.js';
+import { BotContext } from '../middlewares/session.js';
 
-export const completeCommand = async (ctx: Context) => {
+export const completeCommand = async (ctx: BotContext) => {
   try {
     if (!ctx.message || !('text' in ctx.message)) {
       return ctx.reply(getNoTextMessage(Command.COMPLETE));
     }
 
-    const text = ctx.message.text;
+    const text = ctx.message.text!;
     const arg = extractArg(text, Command.COMPLETE);
 
     if (!arg) return ctx.reply(getNoTaskNameMessage(Command.COMPLETE));

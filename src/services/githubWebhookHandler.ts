@@ -1,18 +1,21 @@
-import { Telegraf, Markup } from 'telegraf';
-import { GitHubPushPayload, GitHubCommit } from '../core/types.js';
+import { Bot, InlineKeyboard } from 'grammy';
+import {
+  GitHubPushPayload,
+  GitHubCommit,
+  CalendarOpSession,
+} from '../core/types.js';
 import { filterExternalCommits } from './commitFilter.js';
 import { getOctokit, getGitHubFileInfo } from '../clients/github.js';
 import { analyzeTaskDiff, hasChanges } from './diffAnalyzer.js';
 import { formatGitHubSyncMessage } from '../views/syncView.js';
 import { parseMarkdown } from './markdownParser.js';
-import { CalendarOpSession } from '../core/types.js';
 import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
 import logger from '../core/logger.js';
 import { ALLOWED_USERS } from '../core/config.js';
 
 export const handleGitHubWebhook = async (
   payload: GitHubPushPayload,
-  bot: Telegraf<BotContext>,
+  bot: Bot<BotContext>,
 ): Promise<void> => {
   // 1. Filter external commits
   const externalCommits = filterExternalCommits(payload.commits);
@@ -142,19 +145,18 @@ export const handleGitHubWebhook = async (
         if (calendarUpdates.length > 0) {
           setPendingCalendarOps(ALLOWED_USERS[0], calendarUpdates);
 
-          await bot.telegram.sendMessage(ALLOWED_USERS[0], message, {
+          await bot.api.sendMessage(ALLOWED_USERS[0], message, {
             parse_mode: 'MarkdownV2',
             link_preview_options: { is_disabled: true },
-            reply_markup: Markup.inlineKeyboard([
-              Markup.button.callback(
+            reply_markup: new InlineKeyboard()
+              .text(
                 `Update ${calendarUpdates.length} Calendar Events?`,
                 'cal_yes',
-              ),
-              Markup.button.callback('No', 'cal_no'),
-            ]).reply_markup,
+              )
+              .text('No', 'cal_no'),
           });
         } else {
-          await bot.telegram.sendMessage(ALLOWED_USERS[0], message, {
+          await bot.api.sendMessage(ALLOWED_USERS[0], message, {
             parse_mode: 'MarkdownV2',
             link_preview_options: { is_disabled: true },
           });

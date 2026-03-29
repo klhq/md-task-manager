@@ -1,4 +1,4 @@
-import { Markup, Telegraf } from 'telegraf';
+import { Composer, InlineKeyboard } from 'grammy';
 import { BotContext } from '../middlewares/session.js';
 import { Command } from '../core/config.js';
 import logger from '../core/logger.js';
@@ -44,22 +44,22 @@ const sortByTime = (tasks: Task[]): Task[] => {
 };
 
 export const generateSortKeyboard = () =>
-  Markup.inlineKeyboard([
-    [
-      Markup.button.callback('🔥 By Priority', `sort_${SortType.PRIORITY}`),
-      Markup.button.callback('🕐 By Time', `sort_${SortType.TIME}`),
-    ],
-    [Markup.button.callback('❌ Cancel', 'sort_cancel')],
-  ]);
+  new InlineKeyboard()
+    .text('🔥 By Priority', `sort_${SortType.PRIORITY}`)
+    .text('🕐 By Time', `sort_${SortType.TIME}`)
+    .row()
+    .text('❌ Cancel', 'sort_cancel');
 
-export const registerSortAction = (bot: Telegraf<BotContext>) => {
-  bot.action(/^sort_(.+)$/, async (ctx) => {
+export const registerSortAction = (composer: Composer<BotContext>) => {
+  composer.callbackQuery(/^sort_(.+)$/, async (ctx) => {
     const action = ctx.match[1];
     const userId = ctx.from!.id;
 
+    await ctx.answerCallbackQuery();
+
     if (action === 'cancel') {
       await ctx.editMessageText('❌ Sort cancelled.');
-      return ctx.answerCbQuery();
+      return;
     }
 
     try {
@@ -75,7 +75,6 @@ export const registerSortAction = (bot: Telegraf<BotContext>) => {
         sortedTasks = sortByTime(taskData.uncompleted);
         sortLabel = 'time';
       } else {
-        await ctx.answerCbQuery('⚠️ Unknown sort type');
         return;
       }
 
@@ -85,11 +84,9 @@ export const registerSortAction = (bot: Telegraf<BotContext>) => {
       await ctx.editMessageText(
         `✅ Tasks sorted by ${sortLabel}. (${sortedTasks.length} tasks)`,
       );
-      await ctx.answerCbQuery(`Sorted by ${sortLabel}`);
     } catch (error) {
       await ctx.editMessageText('❌ Failed to sort tasks. Please try again.');
       logger.errorWithContext({ userId, op: Command.SORT, error });
-      await ctx.answerCbQuery('Error');
     }
   });
 };

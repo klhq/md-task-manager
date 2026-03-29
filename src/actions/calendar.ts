@@ -1,4 +1,4 @@
-import { Telegraf } from 'telegraf';
+import { Composer } from 'grammy';
 import {
   BotContext,
   getPendingCalendarOps,
@@ -11,16 +11,18 @@ import { findTaskIdxByName } from '../utils/index.js';
 import logger from '../core/logger.js';
 import { Task } from '../core/types.js';
 
-export const registerCalendarAction = (bot: Telegraf<BotContext>) => {
-  bot.action(['cal_yes', 'cal_no'], async (ctx) => {
-    const action = ctx.match[0];
+export const registerCalendarAction = (composer: Composer<BotContext>) => {
+  composer.callbackQuery(['cal_yes', 'cal_no'], async (ctx) => {
+    const action = ctx.match;
     const isYes = action === 'cal_yes';
-    const ops = getPendingCalendarOps(ctx.from!.id);
     const userId = ctx.from!.id;
+    const ops = getPendingCalendarOps(userId);
+
+    await ctx.answerCallbackQuery();
 
     if (!ops || ops.length === 0) {
       await ctx.editMessageReplyMarkup(undefined);
-      return ctx.answerCbQuery('⚠️ Session expired.');
+      return;
     }
 
     try {
@@ -35,8 +37,8 @@ export const registerCalendarAction = (bot: Telegraf<BotContext>) => {
 
     if (!isYes) {
       await ctx.deleteMessage();
-      clearPendingCalendarOps(ctx.from!.id);
-      return ctx.answerCbQuery();
+      clearPendingCalendarOps(userId);
+      return;
     }
 
     try {
@@ -46,7 +48,7 @@ export const registerCalendarAction = (bot: Telegraf<BotContext>) => {
         await ctx.reply(
           '❌ Timezone not set. Please use /settimezone then click Yes again.',
         );
-        return ctx.answerCbQuery();
+        return;
       }
 
       // Process operations
@@ -147,7 +149,6 @@ export const registerCalendarAction = (bot: Telegraf<BotContext>) => {
       await ctx.reply('❌ An error occurred.');
     }
 
-    clearPendingCalendarOps(ctx.from!.id);
-    return ctx.answerCbQuery();
+    clearPendingCalendarOps(userId);
   });
 };

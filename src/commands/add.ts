@@ -1,4 +1,4 @@
-import { Context, Markup } from 'telegraf';
+import { InlineKeyboard } from 'grammy';
 import { Command } from '../core/config.js';
 import {
   extractArg,
@@ -17,14 +17,14 @@ import {
 } from '../views/generalView.js';
 import logger from '../core/logger.js';
 import { Task } from '../core/types.js';
-import { setPendingCalendarOps } from '../middlewares/session.js';
+import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
 
-export const addCommand = async (ctx: Context) => {
+export const addCommand = async (ctx: BotContext) => {
   if (!ctx.message || !('text' in ctx.message)) {
     return ctx.reply(getNoTextMessage(Command.ADD));
   }
 
-  const text = ctx.message.text;
+  const text = ctx.message.text!;
   const arg = extractArg(text, Command.ADD);
 
   if (!arg) {
@@ -80,13 +80,11 @@ export const addCommand = async (ctx: Context) => {
       setPendingCalendarOps(ctx.from!.id, [
         { type: 'add', taskName: task.name },
       ]);
-      await ctx.reply(
-        'Add this task to Google Calendar?',
-        Markup.inlineKeyboard([
-          Markup.button.callback('Yes', 'cal_yes'),
-          Markup.button.callback('No', 'cal_no'),
-        ]),
-      );
+      await ctx.reply('Add this task to Google Calendar?', {
+        reply_markup: new InlineKeyboard()
+          .text('Yes', 'cal_yes')
+          .text('No', 'cal_no'),
+      });
     }
   } catch (error) {
     ctx.reply('❌ Error adding task. Please try again.');

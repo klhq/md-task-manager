@@ -1,4 +1,4 @@
-import { Context } from 'telegraf';
+import { BotContext } from '../middlewares/session.js';
 import logger from '../core/logger.js';
 import { extractArg, formatTaskListStr, parseTags } from '../utils/index.js';
 import { Command } from '../core/config.js';
@@ -6,9 +6,9 @@ import { NO_TASK_MESSAGE } from '../views/generalView.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { Task } from '../core/types.js';
 
-export const listCommand = async (ctx: Context) => {
+export const listCommand = async (ctx: BotContext) => {
   try {
-    const text = ctx.message && 'text' in ctx.message ? ctx.message.text : '';
+    const text = ctx.message && 'text' in ctx.message ? ctx.message.text! : '';
     const arg = extractArg(text, Command.LIST).trim();
 
     const { taskData } = await queryTasks();

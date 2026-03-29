@@ -1,11 +1,11 @@
-import { Context } from 'telegraf';
+import { BotContext } from '../middlewares/session.js';
 import logger from '../core/logger.js';
 import { Command } from '../core/config.js';
 
 const REPO_URL = 'https://github.com/lazyskyline7/md-task-manager';
 const VERSION = '1\\.0\\.0';
 
-export const aboutCommand = async (ctx: Context) => {
+export const aboutCommand = async (ctx: BotContext) => {
   try {
     const message = `
 🤖 *Markdown Task Manager Bot*

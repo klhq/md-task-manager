@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { Hono } from 'hono';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
+import { webhookCallback } from 'grammy';
 import { IS_PROD } from './core/config.js';
 import logger from './core/logger.js';
 import { AppError } from './core/error.js';
@@ -14,7 +15,6 @@ import { githubWebhookHandler } from './routes/githubWebhook.js';
 
 // Environment configuration
 const token = process.env.TELEGRAM_BOT_TOKEN;
-const BOT_SECRET = process.env.BOT_SECRET;
 
 if (!token) {
   logger.errorWithContext({ message: 'TELEGRAM_BOT_TOKEN is required!' });
@@ -37,15 +37,12 @@ app.use(async (c, next) => {
 });
 
 // Telegram webhook
-app.post('/api', async (c) => {
-  const secretToken = c.req.header('x-telegram-bot-api-secret-token');
-  if (BOT_SECRET && secretToken !== BOT_SECRET) {
-    return c.json({ error: 'Unauthorized' }, 401);
-  }
-  const update = await c.req.json();
-  await bot.handleUpdate(update);
-  return c.json({ ok: true });
-});
+app.post(
+  '/api',
+  webhookCallback(bot, 'hono', {
+    secretToken: process.env.BOT_SECRET,
+  }),
+);
 
 // Routes
 app.get('/api', healthHandler);
@@ -103,7 +100,6 @@ if (!IS_PROD) {
 
     server.close(() => {
       logger.infoWithContext({ message: 'Server closed successfully' });
-      bot.stop(signal);
       process.exit(0);
     });
   };
