@@ -1,6 +1,6 @@
 import { Scenes, Markup } from 'telegraf';
 import { message } from 'telegraf/filters';
-import { BotContext, setSessionData } from '../middlewares/session.js';
+import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
 import {
   escapeMarkdownV2,
   parseTags,
@@ -185,15 +185,13 @@ editTaskScene.on(message('text'), async (ctx) => {
           fieldToUpdate,
         )
       ) {
-        setSessionData(userId, {
-          calendarOps: [
-            {
-              type: 'update',
-              taskName: updatedTask.name,
-              calendarEventId: oldTask.calendarEventId,
-            },
-          ],
-        });
+        setPendingCalendarOps(userId, [
+          {
+            type: 'update',
+            taskName: updatedTask.name,
+            calendarEventId: oldTask.calendarEventId,
+          },
+        ]);
         await ctx.reply(
           'Update Google Calendar Event?',
           Markup.inlineKeyboard([
@@ -208,14 +206,12 @@ editTaskScene.on(message('text'), async (ctx) => {
         updatedTask.date &&
         updatedTask.time
       ) {
-        setSessionData(userId, {
-          calendarOps: [
-            {
-              type: 'add',
-              taskName: updatedTask.name,
-            },
-          ],
-        });
+        setPendingCalendarOps(userId, [
+          {
+            type: 'add',
+            taskName: updatedTask.name,
+          },
+        ]);
         await ctx.reply(
           'Add this task to Google Calendar?',
           Markup.inlineKeyboard([

@@ -1,5 +1,9 @@
 import { Telegraf } from 'telegraf';
-import { BotContext, clearSessionData } from '../middlewares/session.js';
+import {
+  BotContext,
+  getPendingCalendarOps,
+  clearPendingCalendarOps,
+} from '../middlewares/session.js';
 import { googleCalendarService } from '../clients/google-calendar.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
@@ -11,7 +15,7 @@ export const registerCalendarAction = (bot: Telegraf<BotContext>) => {
   bot.action(['cal_yes', 'cal_no'], async (ctx) => {
     const action = ctx.match[0];
     const isYes = action === 'cal_yes';
-    const ops = ctx.session.calendarOps;
+    const ops = getPendingCalendarOps(ctx.from!.id);
     const userId = ctx.from!.id;
 
     if (!ops || ops.length === 0) {
@@ -31,7 +35,7 @@ export const registerCalendarAction = (bot: Telegraf<BotContext>) => {
 
     if (!isYes) {
       await ctx.deleteMessage();
-      clearSessionData(ctx);
+      clearPendingCalendarOps(ctx.from!.id);
       return ctx.answerCbQuery();
     }
 
@@ -143,7 +147,7 @@ export const registerCalendarAction = (bot: Telegraf<BotContext>) => {
       await ctx.reply('❌ An error occurred.');
     }
 
-    clearSessionData(ctx);
+    clearPendingCalendarOps(ctx.from!.id);
     return ctx.answerCbQuery();
   });
 };

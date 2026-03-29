@@ -6,7 +6,7 @@ import { analyzeTaskDiff, hasChanges } from './diffAnalyzer.js';
 import { formatGitHubSyncMessage } from '../views/syncView.js';
 import { parseMarkdown } from './markdownParser.js';
 import { CalendarOpSession } from '../core/types.js';
-import { BotContext, setSessionData } from '../middlewares/session.js';
+import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
 import logger from '../core/logger.js';
 import { ALLOWED_USERS } from '../core/config.js';
 
@@ -140,9 +140,7 @@ export const handleGitHubWebhook = async (
 
       if (ALLOWED_USERS.length > 0) {
         if (calendarUpdates.length > 0) {
-          setSessionData(ALLOWED_USERS[0], {
-            calendarOps: calendarUpdates,
-          });
+          setPendingCalendarOps(ALLOWED_USERS[0], calendarUpdates);
 
           await bot.telegram.sendMessage(ALLOWED_USERS[0], message, {
             parse_mode: 'MarkdownV2',

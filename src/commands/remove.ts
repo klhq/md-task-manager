@@ -13,7 +13,7 @@ import {
   TASK_NOT_FOUND_MESSAGE,
 } from '../views/generalView.js';
 import { TaskTypeToOp } from '../core/types.js';
-import { setSessionData } from '../middlewares/session.js';
+import { setPendingCalendarOps } from '../middlewares/session.js';
 
 export const removeCommand = async (ctx: Context) => {
   if (!ctx.message || !('text' in ctx.message)) {
@@ -68,15 +68,13 @@ export const removeCommand = async (ctx: Context) => {
     );
 
     if (calendarEventId) {
-      setSessionData(ctx.from!.id, {
-        calendarOps: [
-          {
-            type: 'remove',
-            taskName: taskToRemove.name,
-            calendarEventId,
-          },
-        ],
-      });
+      setPendingCalendarOps(ctx.from!.id, [
+        {
+          type: 'remove',
+          taskName: taskToRemove.name,
+          calendarEventId,
+        },
+      ]);
       await ctx.reply(
         'Remove corresponding Google Calendar Event?',
         Markup.inlineKeyboard([

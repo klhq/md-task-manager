@@ -17,7 +17,7 @@ import {
 } from '../views/generalView.js';
 import logger from '../core/logger.js';
 import { Task } from '../core/types.js';
-import { setSessionData } from '../middlewares/session.js';
+import { setPendingCalendarOps } from '../middlewares/session.js';
 
 export const addCommand = async (ctx: Context) => {
   if (!ctx.message || !('text' in ctx.message)) {
@@ -77,9 +77,9 @@ export const addCommand = async (ctx: Context) => {
     await ctx.reply(response, { parse_mode: 'MarkdownV2' });
 
     if (task.date && task.time) {
-      setSessionData(ctx.from!.id, {
-        calendarOps: [{ type: 'add', taskName: task.name }],
-      });
+      setPendingCalendarOps(ctx.from!.id, [
+        { type: 'add', taskName: task.name },
+      ]);
       await ctx.reply(
         'Add this task to Google Calendar?',
         Markup.inlineKeyboard([
