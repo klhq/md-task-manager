@@ -40,7 +40,7 @@ app.use(async (c, next) => {
 app.post(
   '/api',
   webhookCallback(bot, 'hono', {
-    secretToken: process.env.BOT_SECRET,
+    secretToken: process.env.BOT_SECRET || undefined,
   }),
 );
 
@@ -98,10 +98,8 @@ if (!IS_PROD) {
       message: `${signal} received, shutting down gracefully`,
     });
 
-    server.close(() => {
-      logger.infoWithContext({ message: 'Server closed successfully' });
-      process.exit(0);
-    });
+    server.close();
+    process.exit(0);
   };
 
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
