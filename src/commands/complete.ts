@@ -2,14 +2,15 @@ import { format } from 'date-fns-tz';
 import { Command } from '../core/config.js';
 import { extractArg, findTaskIdxByName } from '../utils/index.js';
 import {
-  getNoTaskNameMessage,
   getNoTextMessage,
+  NO_TASK_MESSAGE,
   TASK_NOT_FOUND_MESSAGE,
 } from '../views/generalView.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
 import logger from '../core/logger.js';
 import { BotContext } from '../middlewares/session.js';
+import { generateTaskPickerKeyboard } from '../actions/taskPicker.js';
 
 export const completeCommand = async (ctx: BotContext) => {
   try {
@@ -20,7 +21,18 @@ export const completeCommand = async (ctx: BotContext) => {
     const text = ctx.message.text!;
     const arg = extractArg(text, Command.COMPLETE);
 
-    if (!arg) return ctx.reply(getNoTaskNameMessage(Command.COMPLETE));
+    if (!arg) {
+      const { taskData } = await queryTasks();
+      if (taskData.uncompleted.length === 0) return ctx.reply(NO_TASK_MESSAGE);
+      return ctx.reply('Select a task to complete:', {
+        reply_markup: generateTaskPickerKeyboard(
+          taskData.uncompleted,
+          'complete',
+          'u',
+          0,
+        ),
+      });
+    }
 
     const { taskData, metadata } = await queryTasks();
     const taskIdx = findTaskIdxByName(taskData.uncompleted, arg);

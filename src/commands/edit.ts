@@ -2,9 +2,10 @@ import { Command } from '../core/config.js';
 import { extractArg, findTaskIdxByName } from '../utils/index.js';
 import { queryTasks } from '../services/queryTasks.js';
 import {
-  getNoTaskNameMessage,
+  NO_TASK_MESSAGE,
   TASK_NOT_FOUND_MESSAGE,
 } from '../views/generalView.js';
+import { generateTaskPickerKeyboard } from '../actions/taskPicker.js';
 import logger from '../core/logger.js';
 import { BotContext } from '../middlewares/session.js';
 
@@ -20,7 +21,16 @@ export const editCommand = async (
   const arg = extractArg(text, Command.EDIT);
 
   if (!arg) {
-    return ctx.reply(getNoTaskNameMessage(Command.EDIT));
+    const { taskData } = await queryTasks();
+    if (taskData.uncompleted.length === 0) return ctx.reply(NO_TASK_MESSAGE);
+    return ctx.reply('Select a task to edit:', {
+      reply_markup: generateTaskPickerKeyboard(
+        taskData.uncompleted,
+        'edit',
+        'u',
+        0,
+      ),
+    });
   }
 
   try {

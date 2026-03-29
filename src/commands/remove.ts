@@ -9,9 +9,10 @@ import { queryTasks } from '../services/queryTasks.js';
 import logger from '../core/logger.js';
 import { saveTasks } from '../services/saveTasks.js';
 import {
-  getNoTaskNameMessage,
+  NO_TASK_MESSAGE,
   TASK_NOT_FOUND_MESSAGE,
 } from '../views/generalView.js';
+import { generateRemovePickerKeyboard } from '../actions/taskPicker.js';
 import { TaskTypeToOp } from '../core/types.js';
 import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
 
@@ -25,7 +26,12 @@ export const removeCommand = async (ctx: BotContext) => {
     const arg = extractArg(text, Command.REMOVE);
 
     if (!arg) {
-      return ctx.reply(getNoTaskNameMessage(Command.REMOVE));
+      const { taskData } = await queryTasks();
+      const total = taskData.uncompleted.length + taskData.completed.length;
+      if (total === 0) return ctx.reply(NO_TASK_MESSAGE);
+      return ctx.reply('Select a task to remove:', {
+        reply_markup: generateRemovePickerKeyboard(taskData, 0),
+      });
     }
 
     const { taskData, metadata } = await queryTasks();

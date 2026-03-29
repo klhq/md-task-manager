@@ -23,6 +23,7 @@ import { sessionMiddleware, BotContext } from './middlewares/session.js';
 import { whitelist } from './middlewares/whitelist.js';
 import { editSceneComposer, enterEditScene } from './scenes/editTaskScene.js';
 import { registerCalendarAction } from './actions/calendar.js';
+import { registerTaskPickerAction } from './actions/taskPicker.js';
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -76,6 +77,7 @@ opComposer.command(Command.SORT, sortCommand);
 // Actions registered on opComposer (behind whitelist)
 registerSortAction(opComposer);
 registerCalendarAction(opComposer);
+registerTaskPickerAction(opComposer);
 
 bot.use(infoComposer, opComposer);
 
