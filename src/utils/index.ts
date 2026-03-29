@@ -1,6 +1,9 @@
+import { InlineKeyboard } from 'grammy';
 import { format } from 'date-fns-tz';
 import { Command } from '../core/config.js';
-import { Task } from '../core/types.js';
+import { Task, CalendarOpSession } from '../core/types.js';
+import logger from '../core/logger.js';
+import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
 
 // Extract argument from command text
 export const extractArg = (text: string, command: string) =>
@@ -249,3 +252,35 @@ export const findTaskIdxByName = (
   tasks: readonly Task[],
   name: string,
 ): number => tasks.findIndex((task) => task.name === name);
+
+export const markTaskCompleted = (task: Task, timezone?: string) => {
+  task.completed = true;
+  const now = new Date();
+  const completedAt = format(now, 'yyyy-MM-dd HH:mm:ss', {
+    timeZone: timezone,
+  });
+  task.log = `Completed ${completedAt} (${timezone})`;
+};
+
+const calendarKeyboard = new InlineKeyboard()
+  .text('Yes', 'cal_yes')
+  .text('No', 'cal_no');
+
+export const promptCalendarAction = async (
+  ctx: BotContext,
+  message: string,
+  ops: CalendarOpSession[],
+) => {
+  setPendingCalendarOps(ctx.from!.id, ops);
+  await ctx.reply(message, { reply_markup: calendarKeyboard });
+};
+
+export const logAndReplyError = (
+  ctx: BotContext,
+  op: string,
+  error: unknown,
+  message = '❌ Something went wrong. Please try again.',
+) => {
+  logger.errorWithContext({ userId: ctx.from?.id, op, error });
+  ctx.reply(message);
+};

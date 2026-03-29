@@ -1,6 +1,11 @@
 import { Octokit } from '@octokit/rest';
 import logger from '../core/logger.js';
 
+const getErrorStatus = (error: unknown): number | undefined =>
+  error instanceof Error && 'status' in error
+    ? (error as { status: number }).status
+    : undefined;
+
 // Singleton Octokit instance
 let octokitInstance: Octokit | null = null;
 
@@ -73,8 +78,7 @@ export const fetchFileContent = async (): Promise<string> => {
 
     return text;
   } catch (error) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if ((error as any)?.status === 404) {
+    if (getErrorStatus(error) === 404) {
       const notFoundErrorMsg =
         'Tasks file not found. Make sure the file exists in the repository.';
       logger.errorWithContext({
@@ -126,8 +130,7 @@ export const saveFileContent = async (
 
         sha = currentFile.data.sha;
       } catch (error) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const status = (error as any)?.status;
+        const status = getErrorStatus(error);
 
         // If file doesn't exist (404) or repo is empty (404), we'll create it without SHA
         if (status === 404) {
@@ -157,8 +160,7 @@ export const saveFileContent = async (
       return true;
     } catch (error) {
       attempt++;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const isConflict = (error as any)?.status === 409;
+      const isConflict = getErrorStatus(error) === 409;
 
       if (isConflict && attempt < retries) {
         logger.warnWithContext({

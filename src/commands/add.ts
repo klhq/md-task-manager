@@ -1,4 +1,4 @@
-import { Composer, InlineKeyboard } from 'grammy';
+import { Composer } from 'grammy';
 import { Command } from '../core/config.js';
 import {
   extractArg,
@@ -7,14 +7,15 @@ import {
   formatOperatedTaskStr,
   parseUserText,
   findTaskIdxByName,
+  logAndReplyError,
+  promptCalendarAction,
 } from '../utils/index.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
 import { generateAiTask } from '../clients/ai.js';
 import { getNoTextMessage } from '../views/generalView.js';
-import logger from '../core/logger.js';
 import { Task } from '../core/types.js';
-import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
+import { BotContext } from '../middlewares/session.js';
 
 export const addCommand = async (ctx: BotContext) => {
   if (!ctx.message || !('text' in ctx.message)) {
@@ -89,18 +90,17 @@ const processAdd = async (ctx: BotContext, input: string) => {
     await ctx.reply(response, { parse_mode: 'MarkdownV2' });
 
     if (task.date && task.time) {
-      setPendingCalendarOps(ctx.from!.id, [
+      await promptCalendarAction(ctx, 'Add this task to Google Calendar?', [
         { type: 'add', taskName: task.name },
       ]);
-      await ctx.reply('Add this task to Google Calendar?', {
-        reply_markup: new InlineKeyboard()
-          .text('Yes', 'cal_yes')
-          .text('No', 'cal_no'),
-      });
     }
   } catch (error) {
-    ctx.reply('❌ Error adding task. Please try again.');
-    logger.errorWithContext({ userId: ctx.from?.id, op: Command.ADD, error });
+    logAndReplyError(
+      ctx,
+      Command.ADD,
+      error,
+      '❌ Error adding task. Please try again.',
+    );
   }
 };
 

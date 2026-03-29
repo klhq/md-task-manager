@@ -1,20 +1,21 @@
-import { InlineKeyboard } from 'grammy';
 import { Command } from '../core/config.js';
 import {
   extractArg,
   formatOperatedTaskStr,
   findTaskIdxByName,
+  logAndReplyError,
+  promptCalendarAction,
 } from '../utils/index.js';
 import { queryTasks } from '../services/queryTasks.js';
-import logger from '../core/logger.js';
 import { saveTasks } from '../services/saveTasks.js';
+import logger from '../core/logger.js';
 import {
   NO_TASK_MESSAGE,
   TASK_NOT_FOUND_MESSAGE,
 } from '../views/generalView.js';
 import { generateRemovePickerKeyboard } from '../actions/taskPicker.js';
 import { TaskTypeToOp } from '../core/types.js';
-import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
+import { BotContext } from '../middlewares/session.js';
 
 export const removeCommand = async (ctx: BotContext) => {
   if (!ctx.message || !('text' in ctx.message)) {
@@ -74,25 +75,18 @@ export const removeCommand = async (ctx: BotContext) => {
     );
 
     if (calendarEventId) {
-      setPendingCalendarOps(ctx.from!.id, [
-        {
-          type: 'remove',
-          taskName: taskToRemove.name,
-          calendarEventId,
-        },
-      ]);
-      await ctx.reply('Remove corresponding Google Calendar Event?', {
-        reply_markup: new InlineKeyboard()
-          .text('Yes', 'cal_yes')
-          .text('No', 'cal_no'),
-      });
+      await promptCalendarAction(
+        ctx,
+        'Remove corresponding Google Calendar Event?',
+        [{ type: 'remove', taskName: taskToRemove.name, calendarEventId }],
+      );
     }
   } catch (error) {
-    ctx.reply('❌ Error removing task. Please try again.');
-    logger.errorWithContext({
-      userId: ctx.from?.id,
-      op: Command.REMOVE,
+    logAndReplyError(
+      ctx,
+      Command.REMOVE,
       error,
-    });
+      '❌ Error removing task. Please try again.',
+    );
   }
 };

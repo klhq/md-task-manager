@@ -32,31 +32,6 @@ class Logger {
     return `[${this.getTimestamp()}] [${level}] ${message}`;
   }
 
-  error(message: string, ...args: unknown[]): void {
-    if (this.level >= LogLevel.ERROR) {
-      console.error(this.format('ERROR', message), ...args);
-    }
-  }
-
-  warn(message: string, ...args: unknown[]): void {
-    if (this.level >= LogLevel.WARN) {
-      console.warn(this.format('WARN', message), ...args);
-    }
-  }
-
-  info(message: string, ...args: unknown[]): void {
-    if (this.level >= LogLevel.INFO) {
-      console.info(this.format('INFO', message), ...args);
-    }
-  }
-
-  debug(message: string, ...args: unknown[]): void {
-    if (this.level >= LogLevel.DEBUG) {
-      console.debug(this.format('DEBUG', message), ...args);
-    }
-  }
-
-  // Context-aware logging methods that use formatLogMessage internally
   errorWithContext(params: LogParams, ...args: unknown[]): void {
     if (this.level >= LogLevel.ERROR) {
       console.error(this.format('ERROR', formatLogMessage(params)), ...args);

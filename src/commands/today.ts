@@ -1,9 +1,8 @@
 import { BotContext } from '../middlewares/session.js';
-import { getTasksByDay } from '../utils/index.js';
+import { getTasksByDay, logAndReplyError } from '../utils/index.js';
 import { Command } from '../core/config.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { getTodaysTasksMessage } from '../views/generalView.js';
-import logger from '../core/logger.js';
 
 export const todayCommand = async (ctx: BotContext) => {
   try {
@@ -30,11 +29,11 @@ export const todayCommand = async (ctx: BotContext) => {
 
     ctx.reply(response, { parse_mode: 'MarkdownV2' });
   } catch (error) {
-    logger.errorWithContext({
-      userId: ctx.from?.id,
-      op: Command.TODAY,
+    logAndReplyError(
+      ctx,
+      Command.TODAY,
       error,
-    });
-    ctx.reply("❌ Failed to get today's tasks.");
+      "❌ Failed to get today's tasks.",
+    );
   }
 };

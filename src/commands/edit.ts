@@ -1,12 +1,15 @@
 import { Command } from '../core/config.js';
-import { extractArg, findTaskIdxByName } from '../utils/index.js';
+import {
+  extractArg,
+  findTaskIdxByName,
+  logAndReplyError,
+} from '../utils/index.js';
 import { queryTasks } from '../services/queryTasks.js';
 import {
   NO_TASK_MESSAGE,
   TASK_NOT_FOUND_MESSAGE,
 } from '../views/generalView.js';
 import { generateTaskPickerKeyboard } from '../actions/taskPicker.js';
-import logger from '../core/logger.js';
 import { BotContext } from '../middlewares/session.js';
 
 export const editCommand = async (
@@ -48,7 +51,11 @@ export const editCommand = async (
 
     await enterEditScene(ctx, taskIdx);
   } catch (error) {
-    ctx.reply('❌ Error initiating edit. Please try again.');
-    logger.errorWithContext({ userId: ctx.from?.id, op: Command.EDIT, error });
+    logAndReplyError(
+      ctx,
+      Command.EDIT,
+      error,
+      '❌ Error initiating edit. Please try again.',
+    );
   }
 };

@@ -1,11 +1,12 @@
 import { Composer, InlineKeyboard } from 'grammy';
-import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
+import { BotContext } from '../middlewares/session.js';
 import {
   escapeMarkdownV2,
   parseTags,
   formatOperatedTaskStr,
   findTimeConflictingTask,
   findTaskIdxByName,
+  promptCalendarAction,
 } from '../utils/index.js';
 import { FIELD_CONFIGS } from '../utils/validators.js';
 import { Command, EDITABLE_FIELDS } from '../core/config.js';
@@ -174,18 +175,13 @@ editSceneComposer.on('message:text', async (ctx, next) => {
           fieldToUpdate,
         )
       ) {
-        setPendingCalendarOps(userId, [
+        await promptCalendarAction(ctx, 'Update Google Calendar Event?', [
           {
             type: 'update',
             taskName: updatedTask.name,
             calendarEventId: oldTask.calendarEventId,
           },
         ]);
-        await ctx.reply('Update Google Calendar Event?', {
-          reply_markup: new InlineKeyboard()
-            .text('Yes', 'cal_yes')
-            .text('No', 'cal_no'),
-        });
       }
     } else {
       if (
@@ -193,17 +189,9 @@ editSceneComposer.on('message:text', async (ctx, next) => {
         updatedTask.date &&
         updatedTask.time
       ) {
-        setPendingCalendarOps(userId, [
-          {
-            type: 'add',
-            taskName: updatedTask.name,
-          },
+        await promptCalendarAction(ctx, 'Add this task to Google Calendar?', [
+          { type: 'add', taskName: updatedTask.name },
         ]);
-        await ctx.reply('Add this task to Google Calendar?', {
-          reply_markup: new InlineKeyboard()
-            .text('Yes', 'cal_yes')
-            .text('No', 'cal_no'),
-        });
       }
     }
   } catch (error) {

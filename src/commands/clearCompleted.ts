@@ -1,8 +1,8 @@
 import { BotContext } from '../middlewares/session.js';
-import logger from '../core/logger.js';
 import { Command } from '../core/config.js';
 import { saveTasks } from '../services/saveTasks.js';
 import { queryTasks } from '../services/queryTasks.js';
+import { logAndReplyError } from '../utils/index.js';
 
 export const clearCompletedCommand = async (ctx: BotContext) => {
   try {
@@ -15,11 +15,11 @@ export const clearCompletedCommand = async (ctx: BotContext) => {
       ctx.reply('❌ Failed to clear completed tasks.');
     }
   } catch (error) {
-    logger.errorWithContext({
-      userId: ctx.from?.id,
-      op: Command.CLEARCOMPLETED,
+    logAndReplyError(
+      ctx,
+      Command.CLEARCOMPLETED,
       error,
-    });
-    ctx.reply('❌ Failed to clear completed tasks.');
+      '❌ Failed to clear completed tasks.',
+    );
   }
 };

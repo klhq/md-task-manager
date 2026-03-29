@@ -12,20 +12,7 @@ import { healthHandler } from './routes/health.js';
 import { cronHandler } from './routes/cron.js';
 import { githubWebhookHandler } from './routes/githubWebhook.js';
 
-// Environment configuration
-const token = process.env.TELEGRAM_BOT_TOKEN;
-
-if (!token) {
-  logger.errorWithContext({ message: 'TELEGRAM_BOT_TOKEN is required!' });
-  process.exit(1);
-}
-
-type Variables = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  parsedBody: any;
-};
-
-const app = new Hono<{ Variables: Variables }>();
+const app = new Hono();
 
 // Log incoming requests
 app.use(async (c, next) => {

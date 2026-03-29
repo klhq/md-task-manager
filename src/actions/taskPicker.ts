@@ -1,7 +1,7 @@
 import { Composer, InlineKeyboard } from 'grammy';
-import { format } from 'date-fns-tz';
 import { Task, TaskData } from '../core/types.js';
-import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
+import { BotContext } from '../middlewares/session.js';
+import { markTaskCompleted, promptCalendarAction } from '../utils/index.js';
 import { enterEditScene } from '../scenes/editTaskScene.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
@@ -162,12 +162,7 @@ const handleComplete = async (
   metadata: { timezone?: string },
   task: Task,
 ) => {
-  task.completed = true;
-  const now = new Date();
-  const completedAt = format(now, 'yyyy-MM-dd HH:mm:ss', {
-    timeZone: metadata.timezone,
-  });
-  task.log = `Completed ${completedAt} (${metadata.timezone})`;
+  markTaskCompleted(task, metadata.timezone);
   await saveTasks(taskData, metadata);
   await ctx.editMessageText(`✅ Completed: ${task.name}`);
 };
@@ -188,14 +183,11 @@ const handleRemove = async (
   await ctx.editMessageText(`🗑️ Removed: ${task.name}`);
 
   if (calendarEventId) {
-    setPendingCalendarOps(ctx.from!.id, [
-      { type: 'remove', taskName: task.name, calendarEventId },
-    ]);
-    await ctx.reply('Remove corresponding Google Calendar Event?', {
-      reply_markup: new InlineKeyboard()
-        .text('Yes', 'cal_yes')
-        .text('No', 'cal_no'),
-    });
+    await promptCalendarAction(
+      ctx,
+      'Remove corresponding Google Calendar Event?',
+      [{ type: 'remove', taskName: task.name, calendarEventId }],
+    );
   }
 };
 

@@ -1,6 +1,10 @@
 import { BotContext } from '../middlewares/session.js';
-import logger from '../core/logger.js';
-import { extractArg, formatTaskListStr, parseTags } from '../utils/index.js';
+import {
+  extractArg,
+  formatTaskListStr,
+  logAndReplyError,
+  parseTags,
+} from '../utils/index.js';
 import { Command } from '../core/config.js';
 import { NO_TASK_MESSAGE } from '../views/generalView.js';
 import { queryTasks } from '../services/queryTasks.js';
@@ -53,7 +57,6 @@ export const listCommand = async (ctx: BotContext) => {
 
     ctx.reply(message, { parse_mode: 'MarkdownV2' });
   } catch (error) {
-    logger.errorWithContext({ userId: ctx.from?.id, op: Command.LIST, error });
-    ctx.reply('❌ Error fetching tasks');
+    logAndReplyError(ctx, Command.LIST, error, '❌ Error fetching tasks.');
   }
 };

@@ -1,6 +1,10 @@
-import { format } from 'date-fns-tz';
 import { Command } from '../core/config.js';
-import { extractArg, findTaskIdxByName } from '../utils/index.js';
+import {
+  extractArg,
+  findTaskIdxByName,
+  logAndReplyError,
+  markTaskCompleted,
+} from '../utils/index.js';
 import {
   getNoTextMessage,
   NO_TASK_MESSAGE,
@@ -8,7 +12,6 @@ import {
 } from '../views/generalView.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
-import logger from '../core/logger.js';
 import { BotContext } from '../middlewares/session.js';
 import { generateTaskPickerKeyboard } from '../actions/taskPicker.js';
 
@@ -40,22 +43,16 @@ export const completeCommand = async (ctx: BotContext) => {
       return ctx.reply(TASK_NOT_FOUND_MESSAGE);
     }
 
-    taskData.uncompleted[taskIdx].completed = true;
-    const now = new Date();
-    const completedAt = format(now, 'yyyy-MM-dd HH:mm:ss', {
-      timeZone: metadata.timezone,
-    });
-    taskData.uncompleted[taskIdx].log =
-      `Completed ${completedAt} (${metadata.timezone})`;
+    markTaskCompleted(taskData.uncompleted[taskIdx], metadata.timezone);
     await saveTasks(taskData, metadata);
 
     ctx.reply(`✅ Completed: ${arg}`);
   } catch (error) {
-    ctx.reply('❌ Error completing task. Please try again.');
-    logger.errorWithContext({
-      userId: ctx.from?.id,
-      op: Command.COMPLETE,
+    logAndReplyError(
+      ctx,
+      Command.COMPLETE,
       error,
-    });
+      '❌ Error completing task. Please try again.',
+    );
   }
 };

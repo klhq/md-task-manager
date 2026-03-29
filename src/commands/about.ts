@@ -1,9 +1,8 @@
 import { BotContext } from '../middlewares/session.js';
-import logger from '../core/logger.js';
-import { Command } from '../core/config.js';
+import { logAndReplyError } from '../utils/index.js';
 
 const REPO_URL = 'https://github.com/lazyskyline7/md-task-manager';
-const VERSION = '1\\.0\\.0';
+const VERSION = '1\\.7\\.0';
 
 export const aboutCommand = async (ctx: BotContext) => {
   try {
@@ -17,7 +16,7 @@ A smart Telegram bot that manages your tasks in a Markdown file using AI\\. It p
 *Repository:* [github\\.com/lazyskyline7/md\\-task\\-manager](${REPO_URL})
 
 *Features:*
-• AI\\-powered task parsing with Gemini
+• AI\\-powered task parsing \\(Gemini, OpenAI, Anthropic\\)
 • Google Calendar sync
 • Markdown storage on GitHub
 • Timezone\\-aware scheduling
@@ -31,11 +30,6 @@ A smart Telegram bot that manages your tasks in a Markdown file using AI\\. It p
 
     await ctx.reply(message, { parse_mode: 'MarkdownV2' });
   } catch (error) {
-    logger.errorWithContext({
-      userId: ctx.from?.id,
-      op: Command.ABOUT,
-      error,
-    });
-    ctx.reply('❌ Error showing bot information');
+    logAndReplyError(ctx, 'ABOUT', error, '❌ Error showing bot information.');
   }
 };

@@ -1,8 +1,8 @@
 import { BotContext } from '../middlewares/session.js';
 import { Command } from '../core/config.js';
 import { queryTasks } from '../services/queryTasks.js';
-import logger from '../core/logger.js';
 import { generateSortKeyboard } from '../actions/sort.js';
+import { logAndReplyError } from '../utils/index.js';
 
 export const sortCommand = async (ctx: BotContext) => {
   try {
@@ -20,7 +20,11 @@ export const sortCommand = async (ctx: BotContext) => {
       },
     );
   } catch (error) {
-    ctx.reply('❌ Error loading tasks. Please try again.');
-    logger.errorWithContext({ userId: ctx.from?.id, op: Command.SORT, error });
+    logAndReplyError(
+      ctx,
+      Command.SORT,
+      error,
+      '❌ Error loading tasks. Please try again.',
+    );
   }
 };
