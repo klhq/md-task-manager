@@ -7,141 +7,143 @@
 [![grammY](https://img.shields.io/badge/bot-grammY-009dca)](https://grammy.dev)
 [![Deploy](https://img.shields.io/badge/deploy-Vercel-000?logo=vercel)](https://vercel.com)
 
-A Telegram bot that manages tasks using a Markdown file on GitHub. Uses AI for natural language processing (supports **Gemini**, **OpenAI**, **Anthropic**, and OpenAI-compatible providers) and integrates with **Google Calendar**.
+A Telegram bot that turns natural language into organized tasks — stored in a **GitHub Markdown file** you own. Powered by AI (Gemini, OpenAI, Anthropic) with **Google Calendar sync**.
 
-Try it: [@LazyMdTaskBot](https://t.me/LazyMdTaskBot)
+> **Try it now:** [@LazyMdTaskBot](https://t.me/LazyMdTaskBot) — just type a message like *"Team meeting Friday 10am for 1h #work"*
+
+<p align="center">
+  <img src="https://img.shields.io/badge/AI-Gemini%20%7C%20OpenAI%20%7C%20Anthropic-blueviolet" />
+  <img src="https://img.shields.io/badge/Storage-GitHub%20Markdown-181717?logo=github" />
+  <img src="https://img.shields.io/badge/Calendar-Google%20Calendar-4285F4?logo=google-calendar" />
+</p>
+
+## Why?
+
+Your tasks live in a **Markdown file in your own GitHub repo** — not locked in someone else's database. Edit tasks from Telegram, VS Code, or directly on GitHub. The bot keeps everything in sync.
+
+```markdown
+| Completed | Task           | Date       | Time  | Duration | Priority | Tags    |
+| :-------- | :------------- | :--------- | :---- | :------- | :------- | :------ |
+|           | Team meeting   | 2026-04-02 | 10:00 | 1:00     | high     | #work   |
+| x         | Buy groceries  | 2026-04-01 | 15:00 | 0:30     |          | #errand |
+```
 
 ## Features
 
-- **Markdown-as-Database**: Tasks stored in a GitHub Markdown table, editable directly
-- **AI-Powered**: Natural language parsing with multiple LLM providers (e.g., "Meeting tomorrow at 3pm")
-- **Google Calendar Sync**: Automatic event creation/updates
-- **Timezone Support**: Multi-timezone handling
-- **Daily Reminders**: Scheduled task summaries
-- **Secure**: Whitelist-based access control
+- **Just type naturally** — *"Buy milk tomorrow at 3pm #shopping"* → AI extracts title, date, time, duration, description, and links automatically
+- **Your data, your repo** — Tasks stored as a Markdown table in GitHub, editable anywhere
+- **Google Calendar sync** — Events created/updated/deleted automatically when tasks change
+- **Multi-provider AI** — Choose Gemini, OpenAI, Anthropic, or any OpenAI-compatible provider (Groq, Together, Ollama)
+- **Smart task picker** — Inline keyboard for completing, editing, and removing tasks
+- **Timezone-aware** — Set your timezone once, all dates/times convert automatically
+- **Daily reminders** — Scheduled notifications for today's tasks
+- **GitHub webhook sync** — Edit tasks on GitHub? The bot detects changes and notifies you
+- **Secure** — Whitelist-based access, webhook signature verification
 
-## Setup
-
-1. **Install dependencies**
-
-   ```bash
-   bun install
-   ```
-
-2. **Configure environment**
-
-   ```bash
-   cp .env.example .env
-   # Edit .env with your credentials
-   ```
-
-3. **Create a Markdown task file** in a GitHub repository using `example-task-table.md` as template
-
-### Required Credentials
-
-- Telegram Bot Token ([@BotFather](https://t.me/BotFather))
-- GitHub Personal Access Token (with `repo` scope)
-- AI Provider API Key (Gemini, OpenAI, or Anthropic)
-- Google Cloud Service Account (optional, for Calendar sync)
-
-### Configuration
-
-| Variable                           | Description                                                                          | Required                   |
-| :--------------------------------- | :----------------------------------------------------------------------------------- | :------------------------- |
-| `TELEGRAM_BOT_TOKEN`               | Your Telegram Bot Token.                                                             | Yes                        |
-| `TELEGRAM_BOT_WHITELIST`           | Comma-separated list of Telegram User IDs allowed to use the bot.                    | Yes                        |
-| `PROVIDER_API_KEY`                     | GitHub Personal Access Token.                                                        | Yes                        |
-| `FILE_PATH`                      | Full URL to the blob file (e.g., `https://github.com/user/repo/blob/main/tasks.md`). | Yes                        |
-| `AI_PROVIDER`                      | AI provider: `gemini`, `openai`, or `anthropic`.                                     | Yes                        |
-| `AI_MODEL`                         | Model name (e.g., `gemini-2.5-flash`, `gpt-4o`, `claude-sonnet-4-20250514`).         | Yes                        |
-| `GOOGLE_GENERATIVE_AI_KEY`         | Gemini API Key (required if `AI_PROVIDER=gemini`).                                   | Conditional                |
-| `OPENAI_API_KEY`                   | OpenAI API Key (required if `AI_PROVIDER=openai`).                                   | Conditional                |
-| `OPENAI_BASE_URL`                  | Custom base URL for OpenAI-compatible providers (Groq, Together, Ollama).             | No                         |
-| `ANTHROPIC_API_KEY`                | Anthropic API Key (required if `AI_PROVIDER=anthropic`).                              | Conditional                |
-| `GOOGLE_CALENDAR_ID`               | The ID of the Google Calendar to sync with.                                          | Optional                   |
-| `GOOGLE_CALENDAR_CREDENTIALS_PATH` | Path to local service account JSON (for local dev).                                  | Optional                   |
-| `CRON_SECRET`                      | Secret key for securing the cron endpoint.                                           | Yes                        |
-| `BOT_SECRET`                       | Secret token to secure Telegram Webhooks.                                            | Optional                   |
-| `GITHUB_WEBHOOK_SECRET`            | Secret token to verify GitHub webhooks.                                              | Optional (for GitHub Sync) |
-
-**For Vercel Deployment (Google Calendar):**
-Instead of `GOOGLE_CALENDAR_CREDENTIALS_PATH`, set these individual variables:
-
-- `GOOGLE_CALENDAR_CLIENT_EMAIL`
-- `GOOGLE_CALENDAR_PROJECT_ID`
-- `GOOGLE_CALENDAR_PRIVATE_KEY`
-
-### Local Development
-
-Start the development server:
+## Quick Start
 
 ```bash
+# 1. Clone and install
+git clone https://github.com/lazyskyline7/md-task-manager.git
+cd md-task-manager
+bun install
+
+# 2. Configure
+cp .env.example .env
+# Edit .env with your credentials
+
+# 3. Run
 bun run dev
 ```
 
-Use `ngrok` or similar to tunnel the webhook to localhost.
+### What You Need
 
-## 🛠 Usage
+| Credential | Where to get it |
+|:-----------|:----------------|
+| Telegram Bot Token | [@BotFather](https://t.me/BotFather) |
+| GitHub Personal Access Token | [GitHub Settings](https://github.com/settings/tokens) (with `repo` scope) |
+| AI API Key | [Google AI Studio](https://aistudio.google.com/apikey), [OpenAI](https://platform.openai.com/api-keys), or [Anthropic](https://console.anthropic.com/) |
+| Google Calendar (optional) | [Google Cloud Console](https://console.cloud.google.com/apis/credentials) — service account |
 
-Chat with your bot on Telegram using these commands:
+### Configuration
+
+| Variable | Description | Required |
+|:---------|:------------|:---------|
+| `TELEGRAM_BOT_TOKEN` | Bot token from BotFather | Yes |
+| `TELEGRAM_BOT_WHITELIST` | Comma-separated Telegram user IDs | Yes |
+| `PROVIDER_API_KEY` | GitHub Personal Access Token | Yes |
+| `FILE_PATH` | Full URL to your task file on GitHub | Yes |
+| `AI_PROVIDER` | `gemini`, `openai`, or `anthropic` | Yes |
+| `AI_MODEL` | Model name (e.g., `gemini-2.5-flash`, `gpt-4o`) | Yes |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | Gemini API key | If `gemini` |
+| `OPENAI_API_KEY` | OpenAI API key | If `openai` |
+| `OPENAI_BASE_URL` | Custom base URL (Groq, Together, Ollama) | No |
+| `ANTHROPIC_API_KEY` | Anthropic API key | If `anthropic` |
+| `CRON_SECRET` | Secret for cron endpoint auth | Yes |
+| `BOT_SECRET` | Telegram webhook verification | Optional |
+| `GITHUB_WEBHOOK_SECRET` | GitHub push notification verification | Optional |
+| `GOOGLE_CALENDAR_ID` | Calendar ID for sync | Optional |
+| `GOOGLE_CALENDAR_CREDENTIALS_PATH` | Service account JSON (local dev) | Optional |
+
+<details>
+<summary><strong>Vercel deployment (Google Calendar)</strong></summary>
+
+Instead of `GOOGLE_CALENDAR_CREDENTIALS_PATH`, set:
+- `GOOGLE_CALENDAR_CLIENT_EMAIL`
+- `GOOGLE_CALENDAR_PROJECT_ID`
+- `GOOGLE_CALENDAR_PRIVATE_KEY`
+</details>
+
+## Commands
 
 ### Task Management
-
-- `/add <text>` - Add a task using natural language (e.g., `/add Buy milk tomorrow at 10am`).
-- `/list` - List incomplete tasks (use `/list all` for all, `/list #tag` to filter).
-- `/today` - Show tasks scheduled for today.
-- `/complete <task_name>` - Mark a task as completed.
-- `/edit <task_name>` - Edit a task's details interactively.
-- `/remove <task_name>` - Permanently remove a task (and its calendar event).
-- `/clearcompleted` - Remove all completed tasks from the list.
+| Command | Description |
+|:--------|:------------|
+| `/add <text>` | Add task with natural language — *"Meeting tomorrow 3pm for 2h #work"* |
+| `/list` | List pending tasks (`/list all` for all, `/list #tag` to filter) |
+| `/today` | Today's tasks |
+| `/complete` | Mark task as done (inline picker or `/complete Task Name`) |
+| `/edit` | Edit task fields interactively (inline picker or `/edit Task Name`) |
+| `/remove` | Remove a task (inline picker or `/remove Task Name`) |
+| `/sort` | Sort by priority or time |
+| `/clearcompleted` | Clear all completed tasks |
 
 ### Settings
+| Command | Description |
+|:--------|:------------|
+| `/settimezone` | Set timezone (inline picker or `/settimezone Asia/Taipei`) |
+| `/mytimezone` | Show current timezone |
+| `/about` | Bot info and version |
 
-- `/settimezone <timezone>` - Set your preferred timezone (e.g., `/settimezone Asia/Taipei`).
-- `/mytimezone` - Check your current timezone setting.
-- `/listtimezones` - Show a list of common timezones.
-- `/about` - Show bot information.
+## GitHub Sync
 
-## 🔄 GitHub Sync Setup
+Get notified when tasks are edited on GitHub:
 
-To receive notifications when tasks are updated on GitHub:
+1. Generate a secret: `openssl rand -hex 32`
+2. Add as `GITHUB_WEBHOOK_SECRET` in your `.env`
+3. In your repo: **Settings** → **Webhooks** → **Add webhook**
+   - URL: `https://your-domain.vercel.app/api/github-webhook`
+   - Content type: `application/json`
+   - Secret: your generated secret
+   - Events: **Just the push event**
 
-1. Generate a random secret string (e.g., `openssl rand -hex 32`).
-2. Add `GITHUB_WEBHOOK_SECRET` to your environment variables with this value.
-3. Go to your GitHub repository **Settings** → **Webhooks** → **Add webhook**.
-4. Configure the webhook:
-   - **Payload URL**: `https://your-app-url.vercel.app/api/github-webhook`
-   - **Content type**: `application/json`
-   - **Secret**: The value you generated in step 1.
-   - **Which events would you like to trigger this webhook?**: Select **Just the push event**.
-   - Ensure **Active** is checked.
-5. Click **Add webhook**.
+The bot filters its own commits automatically — no duplicate notifications.
 
-Now, when you (or a collaborator) push changes to the tasks file on GitHub, the bot will analyze the changes and send a notification with a summary of added, modified, completed, or removed tasks.
+## Deploy
 
-**Note:** The bot intelligently filters out its own commits to avoid duplicate notifications.
-
-## 📦 Deployment
-
-This project is optimized for **Vercel**.
+Optimized for **Vercel**:
 
 1. Import to Vercel
 2. Add environment variables
 3. Deploy
-4. Set webhook via Telegram Bot API
+4. Set Telegram webhook: `https://your-domain.vercel.app/api`
 
-Cron configured in `vercel.json`.
+Daily reminder cron configured in `vercel.json`.
 
-## 🤝 Contributing
+## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Contributions welcome! Fork → Branch → Commit → PR.
 
 ## License
 
-This project is licensed under the Business Source License 1.1 - see the [LICENSE](LICENSE) file for details.
+[Business Source License 1.1](LICENSE)
