@@ -1,4 +1,3 @@
-import dns from 'dns';
 import { Bot, Composer } from 'grammy';
 import { Command, IS_PROD } from './core/config.js';
 import logger from './core/logger.js';
@@ -32,7 +31,7 @@ if (!token) {
 }
 
 if (!IS_PROD) {
-  dns.setDefaultResultOrder('ipv4first');
+  void import('dns').then((dns) => dns.setDefaultResultOrder('ipv4first'));
 }
 
 const bot = new Bot<BotContext>(token);
