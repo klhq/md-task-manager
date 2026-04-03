@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.8.0 (2026-04-03)
+
+
+### Features
+
+* add /whatsnew command with build-time changelog embed ([7e55654](https://github.com/lazyskyline7/md-task-manager/commit/7e55654))
+* add Telegram utility scripts (set:webhook, get:webhook, clear:updates) ([f9a1af4](https://github.com/lazyskyline7/md-task-manager/commit/f9a1af4))
+* derive /about version from package.json at build time ([7e55654](https://github.com/lazyskyline7/md-task-manager/commit/7e55654))
+
+
+### Performance Improvements
+
+* lazy import AI SDK, Octokit, Google Calendar, and dns ([680be6d](https://github.com/lazyskyline7/md-task-manager/commit/680be6d))
+
+
 ## 1.7.1 (2026-04-03)
 
 
