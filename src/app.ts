@@ -34,6 +34,7 @@ app.post('/api', async (c) => {
 
   const update = await c.req.json();
 
+  await bot.init();
   await bot.handleUpdate(update);
   return c.json({ ok: true });
 });
