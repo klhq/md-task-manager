@@ -1,6 +1,5 @@
 import { Hono } from 'hono';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
-import { webhookCallback } from 'grammy';
 import { IS_PROD } from './core/config.js';
 import logger from './core/logger.js';
 import { AppError } from './core/error.js';
@@ -23,12 +22,21 @@ app.use(async (c, next) => {
 });
 
 // Telegram webhook
-app.post(
-  '/api',
-  webhookCallback(bot, 'hono', {
-    secretToken: process.env.BOT_SECRET || undefined,
-  }),
-);
+// NOTE: Manual handler instead of grammY's webhookCallback due to
+// @hono/node-server/vercel POST body hanging bug
+// https://github.com/honojs/node-server/issues/84
+const secret = process.env.BOT_SECRET || undefined;
+app.post('/api', async (c) => {
+  const secretHeader = c.req.header('x-telegram-bot-api-secret-token');
+  if (secret && secretHeader !== secret) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  const update = await c.req.json();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  await bot.handleUpdate(update);
+  return c.json({ ok: true });
+});
 
 // Routes
 app.get('/api', healthHandler);
