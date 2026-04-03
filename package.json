@@ -4,12 +4,16 @@
   "description": "Telegram bot that manages tasks in a Markdown file with AI parsing, Google Calendar sync, and GitHub storage",
   "type": "module",
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "build": "tsc --noEmit",
-    "start": "bun run src/app.ts",
-    "dev": "bun run --watch src/dev.ts",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix",
-    "format": "prettier --write src/**/*.ts"
+    "start": "bun --env-file=.env src/app.ts",
+    "dev": "bun --watch --env-file=.env src/dev.ts",
+    "lint": "eslint src/ --max-warnings 0",
+    "lint:fix": "eslint src/ --fix --max-warnings 0",
+    "format": "prettier --write src/**/*.ts",
+    "set:webhook": "bun --env-file=.env src/scripts/tg/setWebhook.ts",
+    "get:webhook": "bun --env-file=.env src/scripts/tg/getWebhookInfo.ts",
+    "clear:updates": "bun --env-file=.env src/scripts/tg/clearUpdate.ts"
   },
   "keywords": ["telegram-bot", "task-manager", "markdown", "google-calendar", "grammy"],
   "author": "@lazyskyline7",
