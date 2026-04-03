@@ -1,42 +1,8 @@
-import { generateText, Output } from 'ai';
-import { google } from '@ai-sdk/google';
-import { createOpenAI } from '@ai-sdk/openai';
-import { anthropic } from '@ai-sdk/anthropic';
-import { z } from 'zod';
 import { format } from 'date-fns-tz';
+import { z } from 'zod';
+
 import logger from '../core/logger.js';
 import { Task } from '../core/types.js';
-
-const AI_PROVIDER = process.env.AI_PROVIDER;
-const AI_MODEL = process.env.AI_MODEL;
-
-if (!AI_PROVIDER) {
-  throw new Error(
-    'AI_PROVIDER env var is required (e.g. gemini, openai, anthropic)',
-  );
-}
-if (!AI_MODEL) {
-  throw new Error(
-    'AI_MODEL env var is required (e.g. gemini-2.5-flash, gpt-4o)',
-  );
-}
-
-const getModel = () => {
-  switch (AI_PROVIDER) {
-    case 'gemini':
-      return google(AI_MODEL);
-    case 'openai': {
-      const openai = createOpenAI({
-        baseURL: process.env.OPENAI_BASE_URL,
-      });
-      return openai(AI_MODEL);
-    }
-    case 'anthropic':
-      return anthropic(AI_MODEL);
-    default:
-      throw new Error(`Unsupported AI_PROVIDER: ${AI_PROVIDER}`);
-  }
-};
 
 const aiTaskSchema = z.object({
   name: z.string().describe('Concise title of the task.'),
@@ -58,6 +24,42 @@ const aiTaskSchema = z.object({
       'Official resolved URL for brands (e.g., shopee.tw) or the raw URL.',
     ),
 });
+
+const getModel = async () => {
+  const provider = process.env.AI_PROVIDER;
+  const model = process.env.AI_MODEL;
+
+  if (!provider) {
+    throw new Error(
+      'AI_PROVIDER env var is required (e.g. gemini, openai, anthropic)',
+    );
+  }
+  if (!model) {
+    throw new Error(
+      'AI_MODEL env var is required (e.g. gemini-2.5-flash, gpt-4o)',
+    );
+  }
+
+  switch (provider) {
+    case 'gemini': {
+      const { google } = await import('@ai-sdk/google');
+      return google(model);
+    }
+    case 'openai': {
+      const { createOpenAI } = await import('@ai-sdk/openai');
+      const openai = createOpenAI({
+        baseURL: process.env.OPENAI_BASE_URL,
+      });
+      return openai(model);
+    }
+    case 'anthropic': {
+      const { anthropic } = await import('@ai-sdk/anthropic');
+      return anthropic(model);
+    }
+    default:
+      throw new Error(`Unsupported AI_PROVIDER: ${provider}`);
+  }
+};
 
 const getSystemPrompt = (timezone: string) => {
   const now = new Date();
@@ -105,10 +107,11 @@ export const generateAiTask = async (
   tags: string[],
   timezone: string,
 ): Promise<AiGenTask> => {
+  const { generateText, Output } = await import('ai');
   const userPrompt = getUserPrompt(tags, userText);
   try {
     const result = await generateText({
-      model: getModel(),
+      model: await getModel(),
       output: Output.object({ schema: aiTaskSchema }),
       system: getSystemPrompt(timezone),
       prompt: userPrompt,
@@ -121,7 +124,7 @@ export const generateAiTask = async (
     logger.infoWithContext(
       {
         op: 'AI_API',
-        message: `Task generated successfully (provider: ${AI_PROVIDER})`,
+        message: `Task generated successfully (provider: ${process.env.AI_PROVIDER})`,
       },
       result.output,
     );

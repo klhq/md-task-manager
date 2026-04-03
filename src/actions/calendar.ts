@@ -4,7 +4,11 @@ import {
   getPendingCalendarOps,
   clearPendingCalendarOps,
 } from '../middlewares/session.js';
-import { googleCalendarService } from '../clients/google-calendar.js';
+const getCalendarService = async () => {
+  const { googleCalendarService } =
+    await import('../clients/google-calendar.js');
+  return googleCalendarService;
+};
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
 import { findTaskIdxByName } from '../utils/index.js';
@@ -42,6 +46,7 @@ export const registerCalendarAction = (composer: Composer<BotContext>) => {
     }
 
     try {
+      const calendarService = await getCalendarService();
       const { metadata, taskData } = await queryTasks();
 
       if (!metadata.timezone) {
@@ -73,7 +78,7 @@ export const registerCalendarAction = (composer: Composer<BotContext>) => {
               continue;
             }
 
-            const eventId = await googleCalendarService.createEvent(
+            const eventId = await calendarService.createEvent(
               task,
               metadata.timezone,
             );
@@ -85,7 +90,7 @@ export const registerCalendarAction = (composer: Composer<BotContext>) => {
             }
           } else if (op.type === 'remove') {
             if (op.calendarEventId) {
-              const success = await googleCalendarService.deleteEvent(
+              const success = await calendarService.deleteEvent(
                 op.calendarEventId,
               );
               if (success) successCount++;
@@ -110,7 +115,7 @@ export const registerCalendarAction = (composer: Composer<BotContext>) => {
             }
 
             if (op.calendarEventId) {
-              const eventId = await googleCalendarService.updateEvent(
+              const eventId = await calendarService.updateEvent(
                 op.calendarEventId,
                 task,
                 metadata.timezone,

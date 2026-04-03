@@ -31,9 +31,9 @@ app.post('/api', async (c) => {
   if (secret && secretHeader !== secret) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+
   const update = await c.req.json();
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
   await bot.handleUpdate(update);
   return c.json({ ok: true });
 });

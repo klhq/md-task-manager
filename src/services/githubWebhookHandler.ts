@@ -51,7 +51,7 @@ export const handleGitHubWebhook = async (
   }
 
   // 3. Process each relevant commit
-  const octokit = getOctokit();
+  const octokit = await getOctokit();
 
   for (const commit of relevantCommits) {
     try {

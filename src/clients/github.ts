@@ -1,4 +1,5 @@
-import { Octokit } from '@octokit/rest';
+import type { Octokit } from '@octokit/rest';
+
 import logger from '../core/logger.js';
 
 const getErrorStatus = (error: unknown): number | undefined =>
@@ -9,12 +10,13 @@ const getErrorStatus = (error: unknown): number | undefined =>
 // Singleton Octokit instance
 let octokitInstance: Octokit | null = null;
 
-export const getOctokit = (): Octokit => {
+export const getOctokit = async (): Promise<Octokit> => {
   if (!process.env.PROVIDER_API_KEY) {
     throw new Error('PROVIDER_API_KEY is not configured');
   }
 
   if (!octokitInstance) {
+    const { Octokit } = await import('@octokit/rest');
     octokitInstance = new Octokit({
       auth: process.env.PROVIDER_API_KEY,
     });
@@ -60,7 +62,7 @@ export const getGitHubFileInfo = (): GitHubFileInfo => {
 export const fetchFileContent = async (): Promise<string> => {
   const { owner, repo, branch, filePath } = getGitHubFileInfo();
   try {
-    const octokit = getOctokit();
+    const octokit = await getOctokit();
 
     const res = await octokit.repos.getContent({
       owner,
@@ -108,7 +110,7 @@ export const saveFileContent = async (
   const { owner, repo, branch, filePath } = getGitHubFileInfo();
   while (attempt < retries) {
     try {
-      const octokit = getOctokit();
+      const octokit = await getOctokit();
 
       let sha: string | undefined;
 
