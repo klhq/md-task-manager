@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "typecheck": "tsc --noEmit",
+    "prebuild": "bun src/scripts/generateChangelog.ts",
     "build": "tsc --noEmit",
     "start": "bun --env-file=.env src/app.ts",
+    "predev": "bun src/scripts/generateChangelog.ts",
     "dev": "bun --watch --env-file=.env src/dev.ts",
     "lint": "eslint src/ --max-warnings 0",
     "lint:fix": "eslint src/ --fix --max-warnings 0",

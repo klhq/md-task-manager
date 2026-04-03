@@ -1,15 +1,16 @@
+import { VERSION } from '../generated/changelog.js';
 import { BotContext } from '../middlewares/session.js';
 import { logAndReplyError } from '../utils/index.js';
 
 const REPO_URL = 'https://github.com/lazyskyline7/md-task-manager';
-const VERSION = '1\\.7\\.0';
+const ESCAPED_VERSION = VERSION.replace(/\./g, '\\.');
 
 export const aboutCommand = async (ctx: BotContext) => {
   try {
     const message = `
 🤖 *Markdown Task Manager Bot*
 
-*Version:* ${VERSION}
+*Version:* ${ESCAPED_VERSION}
 
 A smart Telegram bot that manages your tasks in a Markdown file using AI\\. It parses natural language to extract task details, syncs with Google Calendar, and keeps everything organized\\.
 

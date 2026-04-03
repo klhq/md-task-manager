@@ -16,6 +16,7 @@ import { sortCommand } from './commands/sort.js';
 import { registerSortAction } from './actions/sort.js';
 import { todayCommand } from './commands/today.js';
 import { aboutCommand } from './commands/about.js';
+import { whatsnewCommand } from './commands/whatsnew.js';
 import { START_WORDING } from './views/generalView.js';
 import { sessionMiddleware, BotContext } from './middlewares/session.js';
 import { whitelist } from './middlewares/whitelist.js';
@@ -47,6 +48,7 @@ bot.catch((err) => {
 
 const infoComposer = new Composer<BotContext>();
 infoComposer.command(Command.ABOUT, aboutCommand);
+infoComposer.command(Command.WHATSNEW, whatsnewCommand);
 
 export const opComposer = new Composer<BotContext>();
 

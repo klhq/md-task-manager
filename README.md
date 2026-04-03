@@ -1,6 +1,7 @@
 # Markdown Task Manager
 
-[![Version](https://img.shields.io/badge/version-1.7.0-green.svg)](package.json)
+[![CI](https://github.com/lazyskyline7/md-task-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/lazyskyline7/md-task-manager/actions/workflows/ci.yml)
+[![Version](https://img.shields.io/badge/version-1.7.1-green.svg)](package.json)
 [![License: BUSL-1.1](https://img.shields.io/badge/License-BUSL--1.1-blue.svg)](LICENSE)
 [![Bun](https://img.shields.io/badge/runtime-Bun-f9f1e1?logo=bun)](https://bun.sh)
 [![Hono](https://img.shields.io/badge/framework-Hono-E36002?logo=hono)](https://hono.dev)
