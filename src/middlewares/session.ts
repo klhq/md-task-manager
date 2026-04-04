@@ -1,4 +1,5 @@
 import { Context, SessionFlavor, session } from 'grammy';
+import { AutoChatActionFlavor } from '@grammyjs/auto-chat-action';
 import { CalendarOpSession, EditableField } from '../core/types.js';
 
 export type { CalendarOpSession } from '../core/types.js';
@@ -18,7 +19,9 @@ export interface SessionData {
   awaitingAdd?: boolean;
 }
 
-export type BotContext = Context & SessionFlavor<SessionData>;
+export type BotContext = Context &
+  SessionFlavor<SessionData> &
+  AutoChatActionFlavor;
 
 // --- grammy session middleware ---
 

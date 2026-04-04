@@ -1,4 +1,5 @@
 import { Bot, Composer } from 'grammy';
+import { autoChatAction } from '@grammyjs/auto-chat-action';
 import { Command, IS_PROD } from './core/config.js';
 import logger from './core/logger.js';
 import { addCommand, addSceneComposer } from './commands/add.js';
@@ -38,6 +39,7 @@ if (!IS_PROD) {
 const bot = new Bot<BotContext>(token);
 
 bot.use(sessionMiddleware);
+bot.use(autoChatAction());
 
 bot.catch((err) => {
   logger.errorWithContext({
