@@ -1,6 +1,6 @@
 {
   "name": "md-task-manager",
-  "version": "1.8.0",
+  "version": "1.0.0",
   "description": "Telegram bot that manages tasks in a Markdown file with AI parsing, Google Calendar sync, and GitHub storage",
   "type": "module",
   "scripts": {
