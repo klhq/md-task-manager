@@ -21,6 +21,7 @@ export const addCommand = async (ctx: BotContext) => {
   if (!ctx.message || !('text' in ctx.message)) {
     return ctx.reply(getNoTextMessage(Command.ADD));
   }
+  ctx.chatAction = 'typing';
 
   const text = ctx.message.text!;
   const arg = extractArg(text, Command.ADD);

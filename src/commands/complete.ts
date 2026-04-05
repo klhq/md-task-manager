@@ -17,6 +17,7 @@ import { generateTaskPickerKeyboard } from '../actions/taskPicker.js';
 
 export const completeCommand = async (ctx: BotContext) => {
   try {
+    ctx.chatAction = 'typing';
     if (!ctx.message || !('text' in ctx.message)) {
       return ctx.reply(getNoTextMessage(Command.COMPLETE));
     }

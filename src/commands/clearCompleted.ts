@@ -6,6 +6,7 @@ import { logAndReplyError } from '../utils/index.js';
 
 export const clearCompletedCommand = async (ctx: BotContext) => {
   try {
+    ctx.chatAction = 'typing';
     const { taskData, metadata } = await queryTasks();
     taskData.completed = [];
     const success = await saveTasks(taskData, metadata);

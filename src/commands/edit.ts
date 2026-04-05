@@ -19,6 +19,7 @@ export const editCommand = async (
   if (!ctx.message || !('text' in ctx.message)) {
     return ctx.reply('❌ Please provide a task name to edit');
   }
+  ctx.chatAction = 'typing';
 
   const text = ctx.message.text!;
   const arg = extractArg(text, Command.EDIT);

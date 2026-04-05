@@ -12,6 +12,7 @@ import { Task } from '../core/types.js';
 
 export const listCommand = async (ctx: BotContext) => {
   try {
+    ctx.chatAction = 'typing';
     const text = ctx.message && 'text' in ctx.message ? ctx.message.text! : '';
     const arg = extractArg(text, Command.LIST).trim();
 

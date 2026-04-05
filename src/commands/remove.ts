@@ -23,6 +23,7 @@ export const removeCommand = async (ctx: BotContext) => {
   }
 
   try {
+    ctx.chatAction = 'typing';
     const text = ctx.message.text!;
     const arg = extractArg(text, Command.REMOVE);
 

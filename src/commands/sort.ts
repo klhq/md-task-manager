@@ -6,6 +6,7 @@ import { logAndReplyError } from '../utils/index.js';
 
 export const sortCommand = async (ctx: BotContext) => {
   try {
+    ctx.chatAction = 'typing';
     const { taskData } = await queryTasks();
 
     if (taskData.uncompleted.length === 0) {

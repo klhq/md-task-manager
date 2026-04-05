@@ -11,6 +11,7 @@ import { getNoTextMessage } from '../views/generalView.js';
 
 export const myTimezoneCommand = async (ctx: BotContext) => {
   try {
+    ctx.chatAction = 'typing';
     const { metadata } = await queryTasks();
     const timezone = metadata.timezone || 'Not set';
     ctx.reply(`🌍 Current timezone: *${timezone}*`, {

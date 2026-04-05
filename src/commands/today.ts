@@ -6,6 +6,7 @@ import { getTodaysTasksMessage } from '../views/generalView.js';
 
 export const todayCommand = async (ctx: BotContext) => {
   try {
+    ctx.chatAction = 'typing';
     const { taskData, metadata } = await queryTasks();
 
     if (!metadata.timezone) {
