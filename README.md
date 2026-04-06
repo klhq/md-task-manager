@@ -9,7 +9,8 @@
 
 A Telegram bot that turns natural language into organized tasks — stored in a **GitHub Markdown file** you own. Powered by AI (Gemini, OpenAI, Anthropic) with **Google Calendar sync**.
 
-> **Try it now:** [@LazyMdTaskBot](https://t.me/LazyMdTaskBot) — just type a message like *"Team meeting Friday 10am for 1h #work"*
+> **Want to try it first?** A hosted multi-user version is running at [@LazyMdTaskBot](https://t.me/LazyMdTaskBot).
+> This repo is the **self-hostable single-user** edition — bring your own API keys.
 
 <p align="center">
   <img src="https://img.shields.io/badge/AI-Gemini%20%7C%20OpenAI%20%7C%20Anthropic-blueviolet" />
@@ -36,9 +37,20 @@ Your tasks live in a **Markdown file in your own GitHub repo** — not locked in
 - **Multi-provider AI** — Choose Gemini, OpenAI, Anthropic, or any OpenAI-compatible provider (Groq, Together, Ollama)
 - **Smart task picker** — Inline keyboard for completing, editing, and removing tasks
 - **Timezone-aware** — Set your timezone once, all dates/times convert automatically
-- **Daily reminders** — Scheduled notifications for today's tasks
+- **Daily reminders** — Cron-triggered notification for today's tasks
 - **GitHub webhook sync** — Edit tasks on GitHub? The bot detects changes and notifies you
 - **Secure** — Whitelist-based access, webhook signature verification
+
+## Editions
+
+|  | Self-hosted (this repo) | Pro ([@LazyMdTaskBot](https://t.me/LazyMdTaskBot)) |
+|:--|:--|:--|
+| Users | Single-user | Multi-user |
+| Storage | GitHub PAT + Markdown file | GitHub App + Cloud DB |
+| Calendar | Service account | Per-user OAuth |
+| Caching | None | Redis |
+| Notifications | Vercel cron | QStash hourly cron |
+| Source | Open | Private |
 
 ## Quick Start
 
