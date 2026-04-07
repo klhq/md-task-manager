@@ -14,6 +14,7 @@ import {
 } from './commands/timezone.js';
 import { editCommand } from './commands/edit.js';
 import { sortCommand } from './commands/sort.js';
+import { searchCommand } from './commands/search.js';
 import { registerSortAction } from './actions/sort.js';
 import { todayCommand } from './commands/today.js';
 import { aboutCommand } from './commands/about.js';
@@ -69,6 +70,7 @@ opComposer.command(Command.SETTIMEZONE, setTimezoneCommand);
 opComposer.command(Command.MYTIMEZONE, myTimezoneCommand);
 opComposer.command(Command.TODAY, todayCommand);
 opComposer.command(Command.SORT, sortCommand);
+opComposer.command(Command.SEARCH, searchCommand);
 
 // Actions registered on opComposer (behind whitelist)
 registerSortAction(opComposer);
