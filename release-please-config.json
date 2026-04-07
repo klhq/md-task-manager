@@ -2,7 +2,7 @@
   "packages": {
     ".": {
       "release-type": "node",
-      "component": "md-task-manager"
+      "include-component-in-tag": false
     }
   }
 }
