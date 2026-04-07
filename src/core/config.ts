@@ -50,6 +50,8 @@ export enum Command {
   CLEARCOMPLETED = 'clearcompleted',
   ABOUT = 'about',
   SORT = 'sort',
+  SEARCH = 'search',
+  UNDO = 'undo',
   WHATSNEW = 'whatsnew',
 }
 type CommandCategory =
@@ -104,6 +106,14 @@ export const COMMANDS: Record<Command, CommandType> = {
   },
   [Command.SORT]: {
     desc: 'sort tasks by priority or time',
+    category: 'task-operation',
+  },
+  [Command.SEARCH]: {
+    desc: 'search tasks by keyword',
+    category: 'info',
+  },
+  [Command.UNDO]: {
+    desc: 'undo last task action',
     category: 'task-operation',
   },
   [Command.WHATSNEW]: {
