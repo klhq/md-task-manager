@@ -4,6 +4,8 @@ import { TABLE_COLUMNS } from '../core/config.js';
 import { formatTags, escapeMarkdownTable } from '../utils/index.js';
 import { validateTask } from '../utils/validators.js';
 import logger from '../core/logger.js';
+import { queryTasks } from './queryTasks.js';
+import { saveUndoSnapshot } from './undoStore.js';
 
 // Pre-compute table header and separator for better performance
 export const TABLE_HEADER = `| ${TABLE_COLUMNS.map((col) => col.header).join(' | ')} |`;
@@ -59,7 +61,24 @@ const serializeTaskMarkdown = (tasks: TaskData, metadata: Metadata): string => {
 export const saveTasks = async (
   tasks: TaskData,
   metadata: Metadata,
+  { skipUndo = false } = {},
 ): Promise<boolean> => {
+  if (!skipUndo) {
+    try {
+      const current = await queryTasks();
+      saveUndoSnapshot(0, {
+        taskData: current.taskData,
+        metadata: current.metadata,
+      });
+    } catch (error) {
+      logger.errorWithContext({
+        op: 'UNDO_SNAPSHOT',
+        error: error instanceof Error ? error.message : error,
+        message: 'Failed to save undo snapshot (non-critical)',
+      });
+    }
+  }
+
   // Validate all tasks before saving
   const invalidTasks = tasks.uncompleted
     .map((task, index) => ({ index, result: validateTask(task) }))
