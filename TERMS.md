@@ -27,4 +27,4 @@ We may update these terms at any time. Continued use of the bot constitutes acce
 
 ## Contact
 
-For questions, open an issue at https://github.com/lazyskyline7/md-task-manager-pro/issues
+For questions, open an issue at https://github.com/klhq/md-task-manager-pro/issues

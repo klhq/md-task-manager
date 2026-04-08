@@ -1,6 +1,6 @@
 # Markdown Task Manager
 
-[![CI](https://github.com/lazyskyline7/md-task-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/lazyskyline7/md-task-manager/actions/workflows/ci.yml)
+[![CI](https://github.com/klhq/md-task-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/klhq/md-task-manager/actions/workflows/ci.yml)
 [![License: BUSL-1.1](https://img.shields.io/badge/License-BUSL--1.1-blue.svg)](LICENSE)
 [![Bun](https://img.shields.io/badge/runtime-Bun-f9f1e1?logo=bun)](https://bun.sh)
 [![Hono](https://img.shields.io/badge/framework-Hono-E36002?logo=hono)](https://hono.dev)
@@ -56,7 +56,7 @@ Your tasks live in a **Markdown file in your own GitHub repo** — not locked in
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/lazyskyline7/md-task-manager.git
+git clone https://github.com/klhq/md-task-manager.git
 cd md-task-manager
 bun install
 

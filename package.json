@@ -1,5 +1,5 @@
 {
-  "name": "md-task-manager",
+  "name": "@md-task-manager/oss",
   "version": "1.9.0",
   "description": "Telegram bot that manages tasks in a Markdown file with AI parsing, Google Calendar sync, and GitHub storage",
   "type": "module",
@@ -24,16 +24,16 @@
     "google-calendar",
     "grammy"
   ],
-  "author": "@lazyskyline7",
+  "author": "@klhq",
   "license": "BUSL-1.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lazyskyline7/md-task-manager"
+    "url": "https://github.com/klhq/md-task-manager"
   },
   "bugs": {
-    "url": "https://github.com/lazyskyline7/md-task-manager/issues"
+    "url": "https://github.com/klhq/md-task-manager/issues"
   },
-  "homepage": "https://github.com/lazyskyline7/md-task-manager#readme",
+  "homepage": "https://github.com/klhq/md-task-manager#readme",
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.64",
     "@ai-sdk/google": "^3.0.53",

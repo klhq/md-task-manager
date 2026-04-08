@@ -28,4 +28,4 @@
 
 ## Contact
 
-For questions or data deletion requests, open an issue at https://github.com/lazyskyline7/md-task-manager-pro/issues
+For questions or data deletion requests, open an issue at https://github.com/klhq/md-task-manager-pro/issues
