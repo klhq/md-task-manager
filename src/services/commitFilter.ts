@@ -1,6 +1,6 @@
 import { GitHubCommit } from '../core/types.js';
 
-const BOT_COMMIT_MESSAGE_PATTERNS = [/^\[bot\] update -/, /^\[bot\] init $/];
+const BOT_COMMIT_MESSAGE_PATTERNS = [/^\[bot\] update -/, /^\[bot\] init/];
 
 export const isExternalCommit = (commit: GitHubCommit): boolean => {
   const message = commit.message;

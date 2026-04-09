@@ -1,4 +1,4 @@
-import { Task, TaskDiff, TaskChange, Metadata } from '../core/types.js';
+import { type Metadata, type Task, type TaskChange, type TaskDiff } from '../core/types.js';
 import { parseMarkdown } from './markdownParser.js';
 
 const findTaskByName = (tasks: Task[], name: string): Task | undefined =>
@@ -6,14 +6,10 @@ const findTaskByName = (tasks: Task[], name: string): Task | undefined =>
 
 const getTaskChanges = (before: Task, after: Task): string[] => {
   const changes: string[] = [];
-  const fieldsToCompare: (keyof Task)[] = [
-    'date',
-    'time',
-    'duration',
-    'priority',
-    'description',
-    'link',
-  ];
+  const fieldsToCompare: Exclude<
+    keyof Task,
+    'completed' | 'tags' | 'calendarEventId' | 'log'
+  >[] = ['date', 'time', 'duration', 'priority', 'description', 'link'];
 
   for (const field of fieldsToCompare) {
     const beforeVal = before[field];
@@ -22,7 +18,7 @@ const getTaskChanges = (before: Task, after: Task): string[] => {
     if (beforeVal !== afterVal) {
       const beforeStr = beforeVal ?? '(empty)';
       const afterStr = afterVal ?? '(empty)';
-      changes.push(`${field}: ${beforeStr} → ${afterStr}`);
+      changes.push(`${field}: ${String(beforeStr)} → ${String(afterStr)}`);
     }
   }
 
