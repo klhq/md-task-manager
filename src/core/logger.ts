@@ -1,5 +1,3 @@
-import { Command } from './config.js';
-
 enum LogLevel {
   ERROR = 0,
   WARN = 1,
@@ -64,9 +62,8 @@ type LogParams = {
   message?: string;
 };
 
-const isCommand = (op: string): boolean => {
-  return Object.values(Command).includes(op as Command);
-};
+/** Commands are lowercase (e.g. "add", "list"); ops are UPPER_SNAKE_CASE (e.g. "AI_API") */
+const isCommand = (op: string): boolean => op === op.toLowerCase();
 
 /**
  * Formats log messages with structured context
