@@ -23,6 +23,7 @@ export const COL_IDX = {
   DESCRIPTION: getColIdx('description'),
   LINK: getColIdx('link'),
   CALENDAR_EVENT_ID: getColIdx('calendarEventId'),
+  RECURRENCE_RULE: getColIdx('recurrenceRule'),
 };
 
 export interface ParseResult {
@@ -157,6 +158,7 @@ export const parseMarkdown = (content: string): ParseResult => {
             description: getCell(cells, COL_IDX.DESCRIPTION),
             link: getCell(cells, COL_IDX.LINK),
             calendarEventId: getCell(cells, COL_IDX.CALENDAR_EVENT_ID),
+            recurrenceRule: getCell(cells, COL_IDX.RECURRENCE_RULE),
           };
 
           tasks.push(task);

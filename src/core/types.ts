@@ -23,6 +23,8 @@ export interface Task {
   calendarEventId?: string;
   // log by bot
   log?: string;
+  // RRULE recurrence string (RFC 5545 subset), e.g. "FREQ=WEEKLY;BYDAY=MO"
+  recurrenceRule?: string;
 }
 
 export type TaskTypeToOp = 'completed' | 'uncompleted' | 'none';

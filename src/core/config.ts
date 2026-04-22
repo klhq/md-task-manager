@@ -23,6 +23,7 @@ export const TABLE_COLUMNS: ReadonlyArray<{
   { key: 'description', header: 'Description' },
   { key: 'link', header: 'Link' },
   { key: 'calendarEventId', header: 'CalendarEventId' },
+  { key: 'recurrenceRule', header: 'RecurrenceRule' },
 ] as const;
 
 export const getInitialContent = (date: Date) => `---
@@ -34,8 +35,8 @@ tags: []
 
 # Task Table
 
-| Completed | Task | Date | Time | Duration | Priority | Tags | Description | Link | CalendarEventId | Log |
-| :-------- | :--- | :--- | :--- | :------- | :------- | :--- | :---------- | :--- | :-------------- | :-- |
+| Completed | Task | Date | Time | Duration | Priority | Tags | Description | Link | CalendarEventId | Log | RecurrenceRule |
+| :-------- | :--- | :--- | :--- | :------- | :------- | :--- | :---------- | :--- | :-------------- | :-- | :------------- |
 `;
 
 export enum Command {
@@ -154,4 +155,5 @@ export const EDITABLE_FIELDS: EditableField[] = [
   'tags',
   'description',
   'link',
+  'recurrenceRule',
 ] as const;
