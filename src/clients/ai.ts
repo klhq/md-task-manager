@@ -23,6 +23,11 @@ const aiTaskSchema = z.object({
     .describe(
       'Official resolved URL for brands (e.g., shopee.tw) or the raw URL.',
     ),
+  recurrenceRule: z
+    .string()
+    .describe(
+      'RRULE recurrence string (RFC 5545 subset). Examples: "FREQ=DAILY", "FREQ=WEEKLY;BYDAY=MO", "FREQ=WEEKLY;BYDAY=MO,WE,FR", "FREQ=WEEKLY;INTERVAL=2;BYDAY=FR", "FREQ=MONTHLY;BYMONTHDAY=15", "FREQ=YEARLY". Use "" if the task is not recurring.',
+    ),
 });
 
 const getModel = async () => {
@@ -74,9 +79,12 @@ You are a high-precision Task Extraction Engine.
 - Current Day: ${dayOfWeekInTz}
 - User Timezone: ${timezone}
 
-### RECURRING TASK BLOCKER
-If the input implies a recurring event (e.g., "every Monday", "daily", "each weekend", "everyday"), return this JSON error state:
-{ "name": "", "date": "", "time": "", "duration": "", "description": "ERROR: Recurring tasks are not supported.", "link": "" }
+### RECURRING TASK RULES
+If the input implies a recurring event (e.g., "every Monday", "daily", "each weekend", "every 2 weeks"):
+- Set **recurrenceRule** to an RRULE string (RFC 5545 subset). Supported: FREQ (DAILY/WEEKLY/MONTHLY/YEARLY), INTERVAL, BYDAY (MO,TU,WE,TH,FR,SA,SU), BYMONTHDAY.
+- Set **date** to the NEXT occurrence from today (${todayInTz}, ${dayOfWeekInTz}).
+- Examples: "every Monday" → "FREQ=WEEKLY;BYDAY=MO", "daily" → "FREQ=DAILY", "every 2 weeks on Friday" → "FREQ=WEEKLY;INTERVAL=2;BYDAY=FR", "monthly on the 15th" → "FREQ=MONTHLY;BYMONTHDAY=15".
+- If the task is NOT recurring, set recurrenceRule to "".
 
 ### LOGIC & EXTRACTION RULES
 1. **Date**: Convert relative terms (tomorrow, next Friday) to YYYY-MM-DD based on the ${todayInTz} context. If no date is found, return "".
