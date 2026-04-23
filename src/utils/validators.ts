@@ -85,7 +85,8 @@ const validators = {
   calendarEventId: (value: unknown): value is string =>
     typeof value === 'string',
   recurrenceRule: (value: unknown): value is string =>
-    typeof value === 'string' && /^FREQ=(DAILY|WEEKLY|MONTHLY|YEARLY)/.test(value),
+    typeof value === 'string' &&
+    /^FREQ=(DAILY|WEEKLY|MONTHLY|YEARLY)/.test(value),
 } as const;
 
 // Field configurations for all task fields
