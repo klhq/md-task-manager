@@ -1,4 +1,4 @@
-import { Task, TaskDiff, CommitInfo, TaskChange } from '../core/types.js';
+import type { CommitInfo, Task, TaskChange, TaskDiff } from '../core/types.js';
 import { escapeMarkdownV2, formatTimeRange } from '../utils/index.js';
 
 const TELEGRAM_MESSAGE_LIMIT = 4096;

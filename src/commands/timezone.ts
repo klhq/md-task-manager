@@ -1,12 +1,12 @@
+import { format, fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { InlineKeyboard } from 'grammy';
-import { BotContext } from '../middlewares/session.js';
+import { COMMON_TIMEZONES, Command } from '../core/config.js';
+import logger from '../core/logger.js';
+import type { Task } from '../core/types.js';
+import type { BotContext } from '../middlewares/session.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
-import logger from '../core/logger.js';
 import { extractArg } from '../utils/index.js';
-import { Command, COMMON_TIMEZONES } from '../core/config.js';
-import { toZonedTime, fromZonedTime, format } from 'date-fns-tz';
-import { Task } from '../core/types.js';
 import { getNoTextMessage } from '../views/generalView.js';
 
 export const myTimezoneCommand = async (ctx: BotContext) => {

@@ -1,14 +1,14 @@
-import { BotContext } from '../middlewares/session.js';
+import { Command } from '../core/config.js';
+import type { Task } from '../core/types.js';
+import type { BotContext } from '../middlewares/session.js';
+import { queryTasks } from '../services/queryTasks.js';
 import {
   extractArg,
   formatTaskListStr,
   logAndReplyError,
   parseTags,
 } from '../utils/index.js';
-import { Command } from '../core/config.js';
 import { NO_TASK_MESSAGE } from '../views/generalView.js';
-import { queryTasks } from '../services/queryTasks.js';
-import { Task } from '../core/types.js';
 
 export const listCommand = async (ctx: BotContext) => {
   try {

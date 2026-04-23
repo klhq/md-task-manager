@@ -1,5 +1,5 @@
 import { LATEST_CHANGELOG } from '../generated/changelog.js';
-import { BotContext } from '../middlewares/session.js';
+import type { BotContext } from '../middlewares/session.js';
 import { logAndReplyError } from '../utils/index.js';
 
 /**

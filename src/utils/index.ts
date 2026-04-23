@@ -1,9 +1,12 @@
-import { InlineKeyboard } from 'grammy';
 import { format } from 'date-fns-tz';
+import { InlineKeyboard } from 'grammy';
 import { Command } from '../core/config.js';
-import { Task, CalendarOpSession } from '../core/types.js';
 import logger from '../core/logger.js';
-import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
+import type { CalendarOpSession, Task } from '../core/types.js';
+import {
+  type BotContext,
+  setPendingCalendarOps,
+} from '../middlewares/session.js';
 
 // Extract argument from command text
 export const extractArg = (text: string, command: string) =>

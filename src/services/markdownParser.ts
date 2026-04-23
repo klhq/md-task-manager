@@ -1,7 +1,7 @@
-import { Task, Metadata, Priority } from '../core/types.js';
 import { TABLE_COLUMNS } from '../core/config.js';
-import { parseTags } from '../utils/index.js';
 import logger from '../core/logger.js';
+import type { Metadata, Priority, Task } from '../core/types.js';
+import { parseTags } from '../utils/index.js';
 
 // Regex patterns for content parsing
 export const FRONTMATTER_KEY_VALUE_PATTERN = /^(\w+):\s*(.+)$/;
@@ -74,7 +74,7 @@ export const parseMarkdown = (content: string): ParseResult => {
           metadata.last_synced = value;
         } else if (key === 'total_tasks') {
           const parsed = parseInt(value, 10);
-          if (!isNaN(parsed)) {
+          if (!Number.isNaN(parsed)) {
             metadata.total_tasks = parsed;
           }
         } else if (key === 'timezone') {
@@ -169,7 +169,6 @@ export const parseMarkdown = (content: string): ParseResult => {
           error: rowError,
           message: `Error parsing row at line ${i + 1}`,
         });
-        continue;
       }
     } else if (inTable && !line.startsWith('|')) {
       // End of table

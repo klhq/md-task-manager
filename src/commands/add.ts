@@ -1,21 +1,21 @@
 import { Composer } from 'grammy';
+import { generateAiTask } from '../clients/ai.js';
 import { Command } from '../core/config.js';
-import {
-  extractArg,
-  findTimeConflictingTask,
-  formatTimeRange,
-  formatOperatedTaskStr,
-  parseUserText,
-  findTaskIdxByName,
-  logAndReplyError,
-  promptCalendarAction,
-} from '../utils/index.js';
+import type { Task } from '../core/types.js';
+import type { BotContext } from '../middlewares/session.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
-import { generateAiTask } from '../clients/ai.js';
+import {
+  extractArg,
+  findTaskIdxByName,
+  findTimeConflictingTask,
+  formatOperatedTaskStr,
+  formatTimeRange,
+  logAndReplyError,
+  parseUserText,
+  promptCalendarAction,
+} from '../utils/index.js';
 import { getNoTextMessage } from '../views/generalView.js';
-import { Task } from '../core/types.js';
-import { BotContext } from '../middlewares/session.js';
 
 export const addCommand = async (ctx: BotContext) => {
   if (!ctx.message || !('text' in ctx.message)) {
@@ -59,7 +59,7 @@ const processAdd = async (ctx: BotContext, input: string) => {
       );
     }
 
-    let task;
+    let task: Task;
     try {
       task = await processNewTask(input, metadata.timezone);
     } catch (error) {

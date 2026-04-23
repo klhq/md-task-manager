@@ -1,7 +1,7 @@
-import { Command, COMMANDS } from '../core/config.js';
-import { escapeMarkdownV2, formatTaskListStr } from '../utils/index.js';
 import { format } from 'date-fns-tz';
-import { Task } from '../core/types.js';
+import { COMMANDS, Command } from '../core/config.js';
+import type { Task } from '../core/types.js';
+import { escapeMarkdownV2, formatTaskListStr } from '../utils/index.js';
 
 export const getNoTextMessage = (command: Command): string =>
   `Please provide a task ${command === Command.ADD ? 'description' : 'name'} to ${command}`;
@@ -37,8 +37,8 @@ const commandsByCategory = Object.values(Command).reduce(
 );
 const calendarOps = commandsByCategory['calendar-operation']?.join('\n') || '';
 const taskOps = commandsByCategory['task-operation']?.join('\n') || '';
-const infoOps = commandsByCategory['info']?.join('\n') || '';
-const configOps = commandsByCategory['config']?.join('\n') || '';
+const infoOps = commandsByCategory.info?.join('\n') || '';
+const configOps = commandsByCategory.config?.join('\n') || '';
 
 export const START_WORDING = `*Welcome to Md Task Manager\\!* 📎
 

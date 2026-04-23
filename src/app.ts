@@ -1,15 +1,14 @@
 import { Hono } from 'hono';
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
-import { IS_PROD } from './core/config.js';
-import logger from './core/logger.js';
-import { AppError } from './core/error.js';
-
 import bot from './bot.js';
+import { IS_PROD } from './core/config.js';
+import { AppError } from './core/error.js';
+import logger from './core/logger.js';
 import { verifyCron } from './middlewares/verifyCron.js';
 import { verifyGithubWebhook } from './middlewares/verifyGithubWebhook.js';
-import { healthHandler } from './routes/health.js';
 import { cronHandler } from './routes/cron.js';
 import { githubWebhookHandler } from './routes/githubWebhook.js';
+import { healthHandler } from './routes/health.js';
 
 const app = new Hono();
 

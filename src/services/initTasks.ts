@@ -1,5 +1,5 @@
-import { getInitialContent } from '../core/config.js';
 import { saveFileContent } from '../clients/github.js';
+import { getInitialContent } from '../core/config.js';
 import logger from '../core/logger.js';
 
 /**

@@ -1,7 +1,7 @@
-import type { Context } from 'hono';
 import type { Bot } from 'grammy';
+import type { Context } from 'hono';
+import type { BotContext } from '../middlewares/session.js';
 import { handleGitHubWebhook } from '../services/githubWebhookHandler.js';
-import { BotContext } from '../middlewares/session.js';
 
 export const githubWebhookHandler = async (
   c: Context,

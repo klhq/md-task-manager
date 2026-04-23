@@ -1,10 +1,10 @@
-import { Composer, InlineKeyboard } from 'grammy';
-import { Task, TaskData } from '../core/types.js';
-import { BotContext } from '../middlewares/session.js';
-import { markTaskCompleted, promptCalendarAction } from '../utils/index.js';
+import { type Composer, InlineKeyboard } from 'grammy';
+import type { Task, TaskData } from '../core/types.js';
+import type { BotContext } from '../middlewares/session.js';
 import { enterEditScene } from '../scenes/editTaskScene.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
+import { markTaskCompleted, promptCalendarAction } from '../utils/index.js';
 
 const TASKS_PER_PAGE = 8;
 const MAX_NAME_LENGTH = 28;
@@ -13,7 +13,7 @@ type PickerCommand = 'complete' | 'remove' | 'edit';
 type TaskType = 'u' | 'c';
 
 const truncate = (name: string, max: number) =>
-  name.length > max ? name.slice(0, max - 1) + '…' : name;
+  name.length > max ? `${name.slice(0, max - 1)}…` : name;
 
 // --- Keyboard generators ---
 

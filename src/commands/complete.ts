@@ -1,4 +1,8 @@
+import { generateTaskPickerKeyboard } from '../actions/taskPicker.js';
 import { Command } from '../core/config.js';
+import type { BotContext } from '../middlewares/session.js';
+import { queryTasks } from '../services/queryTasks.js';
+import { saveTasks } from '../services/saveTasks.js';
 import {
   extractArg,
   findTaskIdxByName,
@@ -10,10 +14,6 @@ import {
   NO_TASK_MESSAGE,
   TASK_NOT_FOUND_MESSAGE,
 } from '../views/generalView.js';
-import { queryTasks } from '../services/queryTasks.js';
-import { saveTasks } from '../services/saveTasks.js';
-import { BotContext } from '../middlewares/session.js';
-import { generateTaskPickerKeyboard } from '../actions/taskPicker.js';
 
 export const completeCommand = async (ctx: BotContext) => {
   try {

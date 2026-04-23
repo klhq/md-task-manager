@@ -1,20 +1,20 @@
 import { Composer, InlineKeyboard } from 'grammy';
-import { BotContext } from '../middlewares/session.js';
+import { generateAiTask } from '../clients/ai.js';
+import { Command, EDITABLE_FIELDS } from '../core/config.js';
+import logger from '../core/logger.js';
+import type { EditableField, Priority, Task } from '../core/types.js';
+import type { BotContext } from '../middlewares/session.js';
+import { queryTasks } from '../services/queryTasks.js';
+import { saveTasks } from '../services/saveTasks.js';
 import {
   escapeMarkdownV2,
-  parseTags,
-  formatOperatedTaskStr,
-  findTimeConflictingTask,
   findTaskIdxByName,
+  findTimeConflictingTask,
+  formatOperatedTaskStr,
+  parseTags,
   promptCalendarAction,
 } from '../utils/index.js';
 import { FIELD_CONFIGS } from '../utils/validators.js';
-import { Command, EDITABLE_FIELDS } from '../core/config.js';
-import { EditableField, Priority, Task } from '../core/types.js';
-import { queryTasks } from '../services/queryTasks.js';
-import { saveTasks } from '../services/saveTasks.js';
-import { generateAiTask } from '../clients/ai.js';
-import logger from '../core/logger.js';
 
 const isValidField = (field: string): field is EditableField =>
   (EDITABLE_FIELDS as readonly string[]).includes(field);

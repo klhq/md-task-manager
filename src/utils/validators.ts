@@ -1,4 +1,4 @@
-import { Priority, Task, Field } from '../core/types.js';
+import { type Field, Priority, type Task } from '../core/types.js';
 
 export interface ValidationResult {
   valid: boolean;

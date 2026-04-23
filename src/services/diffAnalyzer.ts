@@ -1,9 +1,4 @@
-import {
-  type Metadata,
-  type Task,
-  type TaskChange,
-  type TaskDiff,
-} from '../core/types.js';
+import type { Metadata, Task, TaskChange, TaskDiff } from '../core/types.js';
 import { parseMarkdown } from './markdownParser.js';
 
 const findTaskByName = (tasks: Task[], name: string): Task | undefined =>

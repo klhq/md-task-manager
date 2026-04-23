@@ -1,6 +1,6 @@
-import { Context, SessionFlavor, session } from 'grammy';
-import { AutoChatActionFlavor } from '@grammyjs/auto-chat-action';
-import { CalendarOpSession, EditableField } from '../core/types.js';
+import type { AutoChatActionFlavor } from '@grammyjs/auto-chat-action';
+import { type Context, type SessionFlavor, session } from 'grammy';
+import type { CalendarOpSession, EditableField } from '../core/types.js';
 
 export type { CalendarOpSession } from '../core/types.js';
 

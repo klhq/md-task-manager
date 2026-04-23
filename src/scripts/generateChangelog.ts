@@ -1,5 +1,5 @@
-import { mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { dirname, resolve } from 'path';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 
 const ROOT = resolve(import.meta.dirname, '../../');
 const CHANGELOG_PATH = resolve(ROOT, 'CHANGELOG.md');

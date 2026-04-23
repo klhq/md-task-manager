@@ -1,7 +1,7 @@
-import { BotContext } from '../middlewares/session.js';
 import { Command } from '../core/config.js';
-import { saveTasks } from '../services/saveTasks.js';
+import type { BotContext } from '../middlewares/session.js';
 import { queryTasks } from '../services/queryTasks.js';
+import { saveTasks } from '../services/saveTasks.js';
 import { logAndReplyError } from '../utils/index.js';
 
 export const clearCompletedCommand = async (ctx: BotContext) => {

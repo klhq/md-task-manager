@@ -1,17 +1,20 @@
-import { Bot, InlineKeyboard } from 'grammy';
-import {
-  GitHubPushPayload,
-  GitHubCommit,
-  CalendarOpSession,
-} from '../core/types.js';
-import { filterExternalCommits } from './commitFilter.js';
-import { getOctokit, getGitHubFileInfo } from '../clients/github.js';
-import { analyzeTaskDiff, hasChanges } from './diffAnalyzer.js';
-import { formatGitHubSyncMessage } from '../views/syncView.js';
-import { parseMarkdown } from './markdownParser.js';
-import { BotContext, setPendingCalendarOps } from '../middlewares/session.js';
-import logger from '../core/logger.js';
+import { type Bot, InlineKeyboard } from 'grammy';
+import { getGitHubFileInfo, getOctokit } from '../clients/github.js';
 import { ALLOWED_USERS } from '../core/config.js';
+import logger from '../core/logger.js';
+import type {
+  CalendarOpSession,
+  GitHubCommit,
+  GitHubPushPayload,
+} from '../core/types.js';
+import {
+  type BotContext,
+  setPendingCalendarOps,
+} from '../middlewares/session.js';
+import { formatGitHubSyncMessage } from '../views/syncView.js';
+import { filterExternalCommits } from './commitFilter.js';
+import { analyzeTaskDiff, hasChanges } from './diffAnalyzer.js';
+import { parseMarkdown } from './markdownParser.js';
 
 export const handleGitHubWebhook = async (
   payload: GitHubPushPayload,

@@ -1,16 +1,16 @@
+import { generateTaskPickerKeyboard } from '../actions/taskPicker.js';
 import { Command } from '../core/config.js';
+import type { BotContext } from '../middlewares/session.js';
+import { queryTasks } from '../services/queryTasks.js';
 import {
   extractArg,
   findTaskIdxByName,
   logAndReplyError,
 } from '../utils/index.js';
-import { queryTasks } from '../services/queryTasks.js';
 import {
   NO_TASK_MESSAGE,
   TASK_NOT_FOUND_MESSAGE,
 } from '../views/generalView.js';
-import { generateTaskPickerKeyboard } from '../actions/taskPicker.js';
-import { BotContext } from '../middlewares/session.js';
 
 export const editCommand = async (
   ctx: BotContext,

@@ -1,9 +1,9 @@
-import { Metadata, TaskData } from '../core/types.js';
 import { saveFileContent } from '../clients/github.js';
 import { TABLE_COLUMNS } from '../core/config.js';
-import { formatTags, escapeMarkdownTable } from '../utils/index.js';
-import { validateTask } from '../utils/validators.js';
 import logger from '../core/logger.js';
+import type { Metadata, TaskData } from '../core/types.js';
+import { escapeMarkdownTable, formatTags } from '../utils/index.js';
+import { validateTask } from '../utils/validators.js';
 
 // Pre-compute table header and separator for better performance
 export const TABLE_HEADER = `| ${TABLE_COLUMNS.map((col) => col.header).join(' | ')} |`;
@@ -23,7 +23,9 @@ const serializeTaskMarkdown = (tasks: TaskData, metadata: Metadata): string => {
   }
   if (metadata.tags && metadata.tags.length > 0) {
     lines.push('tags:');
-    metadata.tags.forEach((tag) => lines.push(`  - ${tag}`));
+    for (const tag of metadata.tags) {
+      lines.push(`  - ${tag}`);
+    }
   }
   lines.push('---');
   lines.push('');
@@ -83,11 +85,13 @@ export const saveTasks = async (
 
   // Update metadata tags from tasks
   const activeTags = new Set<string>([]);
-  tasks.uncompleted.forEach((task) => {
+  for (const task of tasks.uncompleted) {
     if (task.tags) {
-      task.tags.forEach((tag) => activeTags.add(tag));
+      for (const tag of task.tags) {
+        activeTags.add(tag);
+      }
     }
-  });
+  }
   metadata.tags = Array.from(activeTags).sort();
 
   // Update last_synced timestamp

@@ -1,12 +1,12 @@
-import { BotContext } from '../middlewares/session.js';
+import { Command } from '../core/config.js';
+import type { BotContext } from '../middlewares/session.js';
+import { queryTasks } from '../services/queryTasks.js';
 import {
   escapeMarkdownV2,
   extractArg,
   formatTaskListStr,
   logAndReplyError,
 } from '../utils/index.js';
-import { Command } from '../core/config.js';
-import { queryTasks } from '../services/queryTasks.js';
 
 export const searchCommand = async (ctx: BotContext) => {
   try {

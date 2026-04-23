@@ -1,7 +1,7 @@
 import type { MiddlewareFn } from 'grammy';
 import { ALLOWED_USERS } from '../core/config.js';
 import logger from '../core/logger.js';
-import { BotContext } from './session.js';
+import type { BotContext } from './session.js';
 
 export const whitelist: MiddlewareFn<BotContext> = async (ctx, next) => {
   try {

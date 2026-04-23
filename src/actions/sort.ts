@@ -1,8 +1,8 @@
-import { Composer, InlineKeyboard } from 'grammy';
-import { BotContext } from '../middlewares/session.js';
+import { type Composer, InlineKeyboard } from 'grammy';
 import { Command } from '../core/config.js';
 import logger from '../core/logger.js';
-import { Priority, Task } from '../core/types.js';
+import { Priority, type Task } from '../core/types.js';
+import type { BotContext } from '../middlewares/session.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
 
