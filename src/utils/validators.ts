@@ -84,6 +84,8 @@ const validators = {
     typeof value === 'string' ? isValidUrl(value) : false,
   calendarEventId: (value: unknown): value is string =>
     typeof value === 'string',
+  recurrenceRule: (value: unknown): value is string =>
+    typeof value === 'string' && /^FREQ=(DAILY|WEEKLY|MONTHLY|YEARLY)/.test(value),
 } as const;
 
 // Field configurations for all task fields
@@ -133,5 +135,10 @@ export const FIELD_CONFIGS: Record<Field, FieldConfig> = {
   log: {
     validator: validators.description,
     errorMessage: 'Invalid log format',
+  },
+  recurrenceRule: {
+    validator: validators.recurrenceRule,
+    errorMessage:
+      'Invalid recurrence rule. Expected RRULE format (e.g., FREQ=WEEKLY;BYDAY=MO)',
   },
 };
