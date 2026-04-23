@@ -1,11 +1,11 @@
-import { calendar, calendar_v3 } from '@googleapis/calendar';
-import { GoogleAuth } from 'google-auth-library';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
+import { calendar, type calendar_v3 } from '@googleapis/calendar';
 import { fromZonedTime } from 'date-fns-tz';
-import { Task } from '../core/types.js';
-import logger from '../core/logger.js';
-import * as fs from 'fs';
-import * as path from 'path';
+import { GoogleAuth } from 'google-auth-library';
 import { IS_PROD } from '../core/config.js';
+import logger from '../core/logger.js';
+import type { Task } from '../core/types.js';
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
 
@@ -27,7 +27,7 @@ class GoogleCalendarService {
         return;
       }
 
-      let credentials;
+      let credentials: Record<string, unknown>;
 
       if (IS_PROD) {
         const clientEmail = process.env.GOOGLE_CALENDAR_CLIENT_EMAIL;
@@ -211,8 +211,8 @@ const getCalendarEventObj = (task: Task, timezone: string) => {
     const durationMatch = task.duration.match(/(\d+):(\d+)/);
     if (durationMatch) {
       const [, durationHours, durationMinutes] = durationMatch;
-      endUtc.setHours(endUtc.getHours() + parseInt(durationHours));
-      endUtc.setMinutes(endUtc.getMinutes() + parseInt(durationMinutes));
+      endUtc.setHours(endUtc.getHours() + parseInt(durationHours, 10));
+      endUtc.setMinutes(endUtc.getMinutes() + parseInt(durationMinutes, 10));
     } else {
       // Default 1 hour duration
       endUtc.setHours(endUtc.getHours() + 1);
@@ -224,7 +224,7 @@ const getCalendarEventObj = (task: Task, timezone: string) => {
 
   let description = task.description || '';
   if (task.link) {
-    description += (description ? '\n\n' : '') + `Link: ${task.link}`;
+    description += `${description ? '\n\n' : ''}Link: ${task.link}`;
   }
 
   return {

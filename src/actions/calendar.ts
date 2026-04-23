@@ -1,19 +1,22 @@
-import { Composer } from 'grammy';
+import type { Composer } from 'grammy';
 import {
-  BotContext,
-  getPendingCalendarOps,
+  type BotContext,
   clearPendingCalendarOps,
+  getPendingCalendarOps,
 } from '../middlewares/session.js';
+
 const getCalendarService = async () => {
-  const { googleCalendarService } =
-    await import('../clients/google-calendar.js');
+  const { googleCalendarService } = await import(
+    '../clients/google-calendar.js'
+  );
   return googleCalendarService;
 };
+
+import logger from '../core/logger.js';
+import type { Task } from '../core/types.js';
 import { queryTasks } from '../services/queryTasks.js';
 import { saveTasks } from '../services/saveTasks.js';
 import { findTaskIdxByName } from '../utils/index.js';
-import logger from '../core/logger.js';
-import { Task } from '../core/types.js';
 
 export const registerCalendarAction = (composer: Composer<BotContext>) => {
   composer.callbackQuery(['cal_yes', 'cal_no'], async (ctx) => {

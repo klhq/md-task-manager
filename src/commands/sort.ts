@@ -1,7 +1,7 @@
-import { BotContext } from '../middlewares/session.js';
-import { Command } from '../core/config.js';
-import { queryTasks } from '../services/queryTasks.js';
 import { generateSortKeyboard } from '../actions/sort.js';
+import { Command } from '../core/config.js';
+import type { BotContext } from '../middlewares/session.js';
+import { queryTasks } from '../services/queryTasks.js';
 import { logAndReplyError } from '../utils/index.js';
 
 export const sortCommand = async (ctx: BotContext) => {

@@ -1,7 +1,7 @@
-import { BotContext } from '../middlewares/session.js';
-import { getTasksByDay, logAndReplyError } from '../utils/index.js';
 import { Command } from '../core/config.js';
+import type { BotContext } from '../middlewares/session.js';
 import { queryTasks } from '../services/queryTasks.js';
+import { getTasksByDay, logAndReplyError } from '../utils/index.js';
 import { getTodaysTasksMessage } from '../views/generalView.js';
 
 export const todayCommand = async (ctx: BotContext) => {

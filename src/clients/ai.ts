@@ -2,7 +2,7 @@ import { format } from 'date-fns-tz';
 import { z } from 'zod';
 
 import logger from '../core/logger.js';
-import { Task } from '../core/types.js';
+import type { Task } from '../core/types.js';
 
 const aiTaskSchema = z.object({
   name: z.string().describe('Concise title of the task.'),

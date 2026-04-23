@@ -1,10 +1,10 @@
-import { EditableField, Field } from './types.js';
+import type { EditableField, Field } from './types.js';
 
 export const IS_PROD = process.env.NODE_ENV === 'production';
 
 export const ALLOWED_USERS = process.env.TELEGRAM_BOT_WHITELIST
   ? process.env.TELEGRAM_BOT_WHITELIST.split(',').map((id) =>
-      parseInt(id.trim()),
+      parseInt(id.trim(), 10),
     )
   : [];
 

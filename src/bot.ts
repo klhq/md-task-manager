@@ -1,30 +1,30 @@
-import { Bot, Composer } from 'grammy';
 import { autoChatAction } from '@grammyjs/auto-chat-action';
+import { Bot, Composer } from 'grammy';
+import { registerCalendarAction } from './actions/calendar.js';
+import { registerSortAction } from './actions/sort.js';
+import { registerTaskPickerAction } from './actions/taskPicker.js';
+import { aboutCommand } from './commands/about.js';
+import { addCommand, addSceneComposer } from './commands/add.js';
+import { clearCompletedCommand } from './commands/clearCompleted.js';
+import { completeCommand } from './commands/complete.js';
+import { editCommand } from './commands/edit.js';
+import { listCommand } from './commands/list.js';
+import { removeCommand } from './commands/remove.js';
+import { searchCommand } from './commands/search.js';
+import { sortCommand } from './commands/sort.js';
+import {
+  applyTimezone,
+  myTimezoneCommand,
+  setTimezoneCommand,
+} from './commands/timezone.js';
+import { todayCommand } from './commands/today.js';
+import { whatsnewCommand } from './commands/whatsnew.js';
 import { Command, IS_PROD } from './core/config.js';
 import logger from './core/logger.js';
-import { addCommand, addSceneComposer } from './commands/add.js';
-import { completeCommand } from './commands/complete.js';
-import { removeCommand } from './commands/remove.js';
-import { listCommand } from './commands/list.js';
-import { clearCompletedCommand } from './commands/clearCompleted.js';
-import {
-  setTimezoneCommand,
-  myTimezoneCommand,
-  applyTimezone,
-} from './commands/timezone.js';
-import { editCommand } from './commands/edit.js';
-import { sortCommand } from './commands/sort.js';
-import { searchCommand } from './commands/search.js';
-import { registerSortAction } from './actions/sort.js';
-import { todayCommand } from './commands/today.js';
-import { aboutCommand } from './commands/about.js';
-import { whatsnewCommand } from './commands/whatsnew.js';
-import { START_WORDING } from './views/generalView.js';
-import { sessionMiddleware, BotContext } from './middlewares/session.js';
+import { type BotContext, sessionMiddleware } from './middlewares/session.js';
 import { whitelist } from './middlewares/whitelist.js';
 import { editSceneComposer, enterEditScene } from './scenes/editTaskScene.js';
-import { registerCalendarAction } from './actions/calendar.js';
-import { registerTaskPickerAction } from './actions/taskPicker.js';
+import { START_WORDING } from './views/generalView.js';
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
 
@@ -34,7 +34,7 @@ if (!token) {
 }
 
 if (!IS_PROD) {
-  void import('dns').then((dns) => dns.setDefaultResultOrder('ipv4first'));
+  void import('node:dns').then((dns) => dns.setDefaultResultOrder('ipv4first'));
 }
 
 const bot = new Bot<BotContext>(token);
