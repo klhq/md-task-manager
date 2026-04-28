@@ -39,7 +39,7 @@ Your tasks live in a **Markdown file in your own GitHub repo** — not locked in
 - **Timezone-aware** — Set your timezone once, all dates/times convert automatically
 - **Daily reminders** — Cron-triggered notification for today's tasks
 - **GitHub webhook sync** — Edit tasks on GitHub? The bot detects changes and notifies you
-- **Secure** — Whitelist-based access, webhook signature verification
+- **Secure** — Allowlist-based access, webhook signature verification
 
 ## Editions
 
@@ -82,7 +82,7 @@ bun run dev
 | Variable | Description | Required |
 |:---------|:------------|:---------|
 | `TELEGRAM_BOT_TOKEN` | Bot token from BotFather | Yes |
-| `TELEGRAM_BOT_WHITELIST` | Comma-separated Telegram user IDs | Yes |
+| `TELEGRAM_BOT_ALLOWLIST` | Comma-separated Telegram user IDs | Yes |
 | `PROVIDER_API_KEY` | GitHub Personal Access Token | Yes |
 | `FILE_PATH` | Full URL to your task file on GitHub | Yes |
 | `AI_PROVIDER` | `gemini`, `openai`, or `anthropic` | Yes |

@@ -3,7 +3,7 @@ import { ALLOWED_USERS } from '../core/config.js';
 import logger from '../core/logger.js';
 import type { BotContext } from './session.js';
 
-export const whitelist: MiddlewareFn<BotContext> = async (ctx, next) => {
+export const allowlist: MiddlewareFn<BotContext> = async (ctx, next) => {
   try {
     const userId = ctx.from?.id;
 
@@ -16,7 +16,7 @@ export const whitelist: MiddlewareFn<BotContext> = async (ctx, next) => {
       const contactInfo =
         ALLOWED_USERS.length > 0
           ? `Please contact the [administrator](tg://user?id=${ALLOWED_USERS[0]}) to gain access\\.`
-          : 'Please configure `TELEGRAM_BOT_WHITELIST` in your environment variables\\.';
+          : 'Please configure `TELEGRAM_BOT_ALLOWLIST` in your environment variables\\.';
 
       await ctx.reply(
         `*Access Restricted* \\- This bot is private\\. ${contactInfo}`,

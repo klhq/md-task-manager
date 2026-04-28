@@ -21,8 +21,8 @@ import { todayCommand } from './commands/today.js';
 import { whatsnewCommand } from './commands/whatsnew.js';
 import { Command, IS_PROD } from './core/config.js';
 import logger from './core/logger.js';
+import { allowlist } from './middlewares/allowlist.js';
 import { type BotContext, sessionMiddleware } from './middlewares/session.js';
-import { whitelist } from './middlewares/whitelist.js';
 import { editSceneComposer, enterEditScene } from './scenes/editTaskScene.js';
 import { START_WORDING } from './views/generalView.js';
 
@@ -58,7 +58,7 @@ export const opComposer = new Composer<BotContext>();
 // Scene composers must be mounted before commands for session isolation
 opComposer.use(addSceneComposer);
 opComposer.use(editSceneComposer);
-opComposer.use(whitelist);
+opComposer.use(allowlist);
 
 opComposer.command(Command.ADD, addCommand);
 opComposer.command(Command.LIST, listCommand);
@@ -72,7 +72,7 @@ opComposer.command(Command.TODAY, todayCommand);
 opComposer.command(Command.SORT, sortCommand);
 opComposer.command(Command.SEARCH, searchCommand);
 
-// Actions registered on opComposer (behind whitelist)
+// Actions registered on opComposer (behind allowlist)
 registerSortAction(opComposer);
 registerCalendarAction(opComposer);
 registerTaskPickerAction(opComposer);
