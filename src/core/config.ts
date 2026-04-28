@@ -23,6 +23,7 @@ export const TABLE_COLUMNS: ReadonlyArray<{
   { key: 'description', header: 'Description' },
   { key: 'link', header: 'Link' },
   { key: 'calendarEventId', header: 'CalendarEventId' },
+  { key: 'log', header: 'Log' },
   { key: 'recurrenceRule', header: 'RecurrenceRule' },
 ] as const;
 

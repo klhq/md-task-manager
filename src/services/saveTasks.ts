@@ -1,62 +1,8 @@
 import { saveFileContent } from '../clients/github.js';
-import { TABLE_COLUMNS } from '../core/config.js';
 import logger from '../core/logger.js';
 import type { Metadata, TaskData } from '../core/types.js';
-import { escapeMarkdownTable, formatTags } from '../utils/index.js';
 import { validateTask } from '../utils/validators.js';
-
-// Pre-compute table header and separator for better performance
-export const TABLE_HEADER = `| ${TABLE_COLUMNS.map((col) => col.header).join(' | ')} |`;
-export const TABLE_SEPARATOR = `| ${TABLE_COLUMNS.map(() => ':--------').join(' | ')} |`;
-
-const serializeTaskMarkdown = (tasks: TaskData, metadata: Metadata): string => {
-  const lines: string[] = [];
-
-  // Add frontmatter
-  lines.push('---');
-  if (metadata.last_synced) {
-    lines.push(`last_synced: ${metadata.last_synced}`);
-  }
-  lines.push(`total_tasks: ${tasks.uncompleted.length}`);
-  if (metadata.timezone) {
-    lines.push(`timezone: ${metadata.timezone}`);
-  }
-  if (metadata.tags && metadata.tags.length > 0) {
-    lines.push('tags:');
-    for (const tag of metadata.tags) {
-      lines.push(`  - ${tag}`);
-    }
-  }
-  lines.push('---');
-  lines.push('');
-
-  // Add table header (use parsed header or default)
-  lines.push(metadata.table_header || '# Task Table');
-  lines.push('');
-  lines.push(TABLE_HEADER);
-  lines.push(TABLE_SEPARATOR);
-
-  // Add task rows
-  tasks.uncompleted.concat(tasks.completed).forEach((task) => {
-    const row = TABLE_COLUMNS.map((col) => {
-      const value = task[col.key];
-
-      if (col.key === 'completed') {
-        return task.completed ? '[x]' : '[ ]';
-      }
-
-      if (col.key === 'tags') {
-        return formatTags(task.tags);
-      }
-
-      return escapeMarkdownTable(value as string | undefined);
-    });
-
-    lines.push(`| ${row.join(' | ')} |`);
-  });
-
-  return lines.join('\n');
-};
+import { serializeTaskMarkdown } from './markdownParser.js';
 
 export const saveTasks = async (
   tasks: TaskData,

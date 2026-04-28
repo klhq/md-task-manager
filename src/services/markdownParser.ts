@@ -1,7 +1,8 @@
 import { TABLE_COLUMNS } from '../core/config.js';
 import logger from '../core/logger.js';
-import type { Metadata, Priority, Task } from '../core/types.js';
-import { parseTags } from '../utils/index.js';
+import type { Metadata, Priority, Task, TaskData } from '../core/types.js';
+import { escapeMarkdownTable, formatTags, parseTags } from '../utils/index.js';
+import { validateTask } from '../utils/validators.js';
 
 // Regex patterns for content parsing
 export const FRONTMATTER_KEY_VALUE_PATTERN = /^(\w+):\s*(.+)$/;
@@ -181,4 +182,98 @@ export const parseMarkdown = (content: string): ParseResult => {
   }
 
   return { metadata, tasks, tableHeader };
+};
+
+export const TABLE_HEADER = `| ${TABLE_COLUMNS.map((col) => col.header).join(' | ')} |`;
+export const TABLE_SEPARATOR = `| ${TABLE_COLUMNS.map(() => ':--------').join(' | ')} |`;
+
+export const deserializeTaskMarkdown = (
+  content: string,
+): {
+  metadata: Metadata;
+  taskData: TaskData;
+} => {
+  try {
+    const { metadata, tasks } = parseMarkdown(content);
+
+    const completedTasks: Task[] = [];
+    const uncompletedTasks: Task[] = [];
+
+    tasks.forEach((task, index) => {
+      const result = validateTask(task);
+      if (!result.valid) {
+        logger.warnWithContext({
+          op: 'VALIDATE_TASKS',
+          message: `Task at index ${index} ("${task.name}") has validation warnings: ${result.errors.join(', ')}`,
+        });
+      }
+
+      if (task.completed) {
+        completedTasks.push(task);
+      } else {
+        uncompletedTasks.push(task);
+      }
+    });
+
+    return {
+      metadata,
+      taskData: {
+        completed: completedTasks,
+        uncompleted: uncompletedTasks,
+      },
+    };
+  } catch (error) {
+    throw new Error(
+      `Failed to parse md tasks: ${error instanceof Error ? error.message : 'Unknown error'}`,
+    );
+  }
+};
+
+export const serializeTaskMarkdown = (
+  tasks: TaskData,
+  metadata: Metadata,
+): string => {
+  const lines: string[] = [];
+
+  lines.push('---');
+  if (metadata.last_synced) {
+    lines.push(`last_synced: ${metadata.last_synced}`);
+  }
+  lines.push(`total_tasks: ${tasks.uncompleted.length}`);
+  if (metadata.timezone) {
+    lines.push(`timezone: ${metadata.timezone}`);
+  }
+  if (metadata.tags && metadata.tags.length > 0) {
+    lines.push('tags:');
+    for (const tag of metadata.tags) {
+      lines.push(`  - ${tag}`);
+    }
+  }
+  lines.push('---');
+  lines.push('');
+
+  lines.push(metadata.table_header || '# Task Table');
+  lines.push('');
+  lines.push(TABLE_HEADER);
+  lines.push(TABLE_SEPARATOR);
+
+  tasks.uncompleted.concat(tasks.completed).forEach((task) => {
+    const row = TABLE_COLUMNS.map((col) => {
+      const value = task[col.key];
+
+      if (col.key === 'completed') {
+        return task.completed ? '[x]' : '[ ]';
+      }
+
+      if (col.key === 'tags') {
+        return formatTags(task.tags);
+      }
+
+      return escapeMarkdownTable(value as string | undefined);
+    });
+
+    lines.push(`| ${row.join(' | ')} |`);
+  });
+
+  return lines.join('\n');
 };
