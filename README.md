@@ -1,15 +1,21 @@
-# Markdown Task Manager
+<p align="center">
+  <img src="assets/logo.png" alt="Markdown Task Manager" width="180" />
+</p>
 
-[![CI](https://github.com/klhq/md-task-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/klhq/md-task-manager/actions/workflows/ci.yml)
-[![License: BUSL-1.1](https://img.shields.io/badge/License-BUSL--1.1-blue.svg)](LICENSE)
-[![Bun](https://img.shields.io/badge/runtime-Bun-f9f1e1?logo=bun)](https://bun.sh)
-[![Hono](https://img.shields.io/badge/framework-Hono-E36002?logo=hono)](https://hono.dev)
-[![grammY](https://img.shields.io/badge/bot-grammY-009dca)](https://grammy.dev)
-[![Deploy](https://img.shields.io/badge/deploy-Vercel-000?logo=vercel)](https://vercel.com)
+<h1 align="center">Markdown Task Manager</h1>
+
+<p align="center">
+  <a href="https://github.com/klhq/md-task-manager/actions/workflows/ci.yml"><img src="https://github.com/klhq/md-task-manager/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-BUSL--1.1-blue.svg" alt="License: BUSL-1.1" /></a>
+  <a href="https://bun.sh"><img src="https://img.shields.io/badge/runtime-Bun-f9f1e1?logo=bun" alt="Bun" /></a>
+  <a href="https://hono.dev"><img src="https://img.shields.io/badge/framework-Hono-E36002?logo=hono" alt="Hono" /></a>
+  <a href="https://grammy.dev"><img src="https://img.shields.io/badge/bot-grammY-009dca" alt="grammY" /></a>
+  <a href="https://vercel.com"><img src="https://img.shields.io/badge/deploy-Vercel-000?logo=vercel" alt="Deploy" /></a>
+</p>
 
 A Telegram bot that turns natural language into organized tasks — stored in a **GitHub Markdown file** you own. Powered by AI (Gemini, OpenAI, Anthropic) with **Google Calendar sync**.
 
-> **Want to try it first?** A hosted multi-user version is running at [@LazyMdTaskBot](https://t.me/LazyMdTaskBot).
+> **Want to try it first?** The hosted multi-user version is now **publicly available** at [@LazyMdTaskBot](https://t.me/LazyMdTaskBot) — no invite required.
 > This repo is the **self-hostable single-user** edition — bring your own API keys.
 
 <p align="center">
@@ -45,7 +51,7 @@ Your tasks live in a **Markdown file in your own GitHub repo** — not locked in
 
 |  | Self-hosted (this repo) | Pro ([@LazyMdTaskBot](https://t.me/LazyMdTaskBot)) |
 |:--|:--|:--|
-| Users | Single-user | Multi-user |
+| Users | Single-user (allowlist) | Public (blocklist moderation) |
 | Storage | GitHub PAT + Markdown file | GitHub App + Cloud DB |
 | Calendar | Service account | Per-user OAuth |
 | Caching | None | Redis |
