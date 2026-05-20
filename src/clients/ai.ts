@@ -47,18 +47,39 @@ const getModel = async () => {
 
   switch (provider) {
     case 'gemini': {
-      const { google } = await import('@ai-sdk/google');
+      const { createGoogleGenerativeAI } = await import('@ai-sdk/google');
+      const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+      if (!apiKey) {
+        throw new Error(
+          'GOOGLE_GENERATIVE_AI_API_KEY is missing. Please set it in your environment.',
+        );
+      }
+      const google = createGoogleGenerativeAI({ apiKey });
       return google(model);
     }
     case 'openai': {
       const { createOpenAI } = await import('@ai-sdk/openai');
+      const apiKey = process.env.OPENAI_API_KEY;
+      if (!apiKey) {
+        throw new Error(
+          'OPENAI_API_KEY is missing. Please set it in your environment.',
+        );
+      }
       const openai = createOpenAI({
         baseURL: process.env.OPENAI_BASE_URL,
+        apiKey,
       });
-      return openai(model);
+      return openai.chat(model);
     }
     case 'anthropic': {
-      const { anthropic } = await import('@ai-sdk/anthropic');
+      const { createAnthropic } = await import('@ai-sdk/anthropic');
+      const apiKey = process.env.ANTHROPIC_API_KEY;
+      if (!apiKey) {
+        throw new Error(
+          'ANTHROPIC_API_KEY is missing. Please set it in your environment.',
+        );
+      }
+      const anthropic = createAnthropic({ apiKey });
       return anthropic(model);
     }
     default:
@@ -115,17 +136,18 @@ export const generateAiTask = async (
   tags: string[],
   timezone: string,
 ): Promise<AiGenTask> => {
-  const { generateText, Output } = await import('ai');
+  const { generateObject } = await import('ai');
   const userPrompt = getUserPrompt(tags, userText);
   try {
-    const result = await generateText({
+    const result = await generateObject({
       model: await getModel(),
-      output: Output.object({ schema: aiTaskSchema }),
+      schema: aiTaskSchema,
+      mode: 'json',
       system: getSystemPrompt(timezone),
       prompt: userPrompt,
     });
 
-    if (!result.output) {
+    if (!result.object) {
       throw new Error('AI returned an empty response. Please try again.');
     }
 
@@ -134,10 +156,10 @@ export const generateAiTask = async (
         op: 'AI_API',
         message: `Task generated successfully (provider: ${process.env.AI_PROVIDER})`,
       },
-      result.output,
+      result.object,
     );
 
-    return result.output;
+    return result.object;
   } catch (error) {
     logger.errorWithContext({
       op: 'AI_API',
