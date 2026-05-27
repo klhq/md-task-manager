@@ -142,7 +142,6 @@ export const generateAiTask = async (
     const result = await generateObject({
       model: await getModel(),
       schema: aiTaskSchema,
-      mode: 'json',
       system: getSystemPrompt(timezone),
       prompt: userPrompt,
     });
