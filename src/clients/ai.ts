@@ -128,6 +128,28 @@ If the input implies a recurring event (e.g., "every Monday", "daily", "each wee
 const getUserPrompt = (extractedTags: string[], userInput: string) =>
   `[PROVIDED_TAGS]: ${extractedTags.join(', ')} [USER_INPUT]: ${userInput} `;
 
+const sanitizeTaskFormats = (taskObj: AiGenTask): void => {
+  // Sanitize time format to strictly HH:MM (strip seconds, pad hour if needed)
+  if (taskObj.time?.includes(':')) {
+    const parts = taskObj.time.split(':');
+    if (parts.length >= 2) {
+      const hh = parts[0].padStart(2, '0');
+      const mm = parts[1].padStart(2, '0');
+      taskObj.time = `${hh}:${mm}`;
+    }
+  }
+
+  // Sanitize duration format to strictly H:MM or HH:MM (strip seconds)
+  if (taskObj.duration?.includes(':')) {
+    const parts = taskObj.duration.split(':');
+    if (parts.length >= 2) {
+      const h = parts[0];
+      const m = parts[1].padStart(2, '0');
+      taskObj.duration = `${h}:${m}`;
+    }
+  }
+};
+
 export type AiGenTask = Omit<Task, 'completed' | 'tags'>;
 
 export const generateAiTask = async (
@@ -150,26 +172,7 @@ export const generateAiTask = async (
     }
 
     const taskObj = result.object;
-
-    // Sanitize time format to strictly HH:MM (strip seconds, pad hour if needed)
-    if (taskObj.time?.includes(':')) {
-      const parts = taskObj.time.split(':');
-      if (parts.length >= 2) {
-        const hh = parts[0].padStart(2, '0');
-        const mm = parts[1].padStart(2, '0');
-        taskObj.time = `${hh}:${mm}`;
-      }
-    }
-
-    // Sanitize duration format to strictly H:MM or HH:MM (strip seconds)
-    if (taskObj.duration?.includes(':')) {
-      const parts = taskObj.duration.split(':');
-      if (parts.length >= 2) {
-        const h = parts[0];
-        const m = parts[1].padStart(2, '0');
-        taskObj.duration = `${h}:${m}`;
-      }
-    }
+    sanitizeTaskFormats(taskObj);
 
     logger.infoWithContext(
       {
@@ -198,26 +201,7 @@ export const generateAiTask = async (
       });
 
       const taskObj = aiTaskSchema.parse(fallbackResult.object) as AiGenTask;
-
-      // Sanitize time format to strictly HH:MM (strip seconds, pad hour if needed)
-      if (taskObj.time?.includes(':')) {
-        const parts = taskObj.time.split(':');
-        if (parts.length >= 2) {
-          const hh = parts[0].padStart(2, '0');
-          const mm = parts[1].padStart(2, '0');
-          taskObj.time = `${hh}:${mm}`;
-        }
-      }
-
-      // Sanitize duration format to strictly H:MM or HH:MM (strip seconds)
-      if (taskObj.duration?.includes(':')) {
-        const parts = taskObj.duration.split(':');
-        if (parts.length >= 2) {
-          const h = parts[0];
-          const m = parts[1].padStart(2, '0');
-          taskObj.duration = `${h}:${m}`;
-        }
-      }
+      sanitizeTaskFormats(taskObj);
 
       logger.infoWithContext(
         {
