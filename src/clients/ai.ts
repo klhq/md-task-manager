@@ -4,44 +4,29 @@ import { z } from 'zod';
 import logger from '../core/logger.js';
 import type { Task } from '../core/types.js';
 
+const robustString = (description: string, defaultValue = '') =>
+  z
+    .preprocess((val) => {
+      if (val === null || val === undefined) return defaultValue;
+      if (typeof val === 'string') return val;
+      return String(val);
+    }, z.string().default(defaultValue))
+    .describe(description);
+
 const aiTaskSchema = z.object({
-  name: z.string().describe('Concise title of the task.'),
-  date: z
-    .string()
-    .describe('YYYY-MM-DD format based on timezone. Use "" if missing.')
-    .nullish()
-    .transform((val) => val ?? ''),
-  time: z
-    .string()
-    .describe('24h HH:MM format. Use "" if missing.')
-    .nullish()
-    .transform((val) => val ?? ''),
-  duration: z
-    .string()
-    .describe(
-      'H:MM format. Default to "1:00" if date/time exist but duration is missing.',
-    )
-    .nullish()
-    .transform((val) => val ?? ''),
-  description: z
-    .string()
-    .describe('AI-generated insight/note. DO NOT include tags here.')
-    .nullish()
-    .transform((val) => val ?? ''),
-  link: z
-    .string()
-    .describe(
-      'Official resolved URL for brands (e.g., shopee.tw) or the raw URL.',
-    )
-    .nullish()
-    .transform((val) => val ?? ''),
-  recurrenceRule: z
-    .string()
-    .describe(
-      'RRULE recurrence string (RFC 5545 subset). Examples: "FREQ=DAILY", "FREQ=WEEKLY;BYDAY=MO", "FREQ=WEEKLY;BYDAY=MO,WE,FR", "FREQ=WEEKLY;INTERVAL=2;BYDAY=FR", "FREQ=MONTHLY;BYMONTHDAY=15", "FREQ=YEARLY". Use "" if the task is not recurring.',
-    )
-    .nullish()
-    .transform((val) => val ?? ''),
+  name: robustString('Concise title of the task.', 'Untitled Task'),
+  date: robustString('YYYY-MM-DD format based on timezone. Use "" if missing.'),
+  time: robustString('24h HH:MM format. Use "" if missing.'),
+  duration: robustString(
+    'H:MM format. Default to "1:00" if date/time exist but duration is missing.',
+  ),
+  description: robustString('AI-generated insight/note. DO NOT include tags here.'),
+  link: robustString(
+    'Official resolved URL for brands (e.g., shopee.tw) or the raw URL.',
+  ),
+  recurrenceRule: robustString(
+    'RRULE recurrence string (RFC 5545 subset). Examples: "FREQ=DAILY", "FREQ=WEEKLY;BYDAY=MO", "FREQ=WEEKLY;BYDAY=MO,WE,FR", "FREQ=WEEKLY;INTERVAL=2;BYDAY=FR", "FREQ=MONTHLY;BYMONTHDAY=15", "FREQ=YEARLY". Use "" if the task is not recurring.',
+  ), // recurrenceRule: z
 });
 
 const getModel = async () => {
@@ -197,75 +182,61 @@ export const generateAiTask = async (
     return taskObj;
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error);
-    if (
-      errMsg.includes('json_schema') ||
-      errMsg.includes('response format') ||
-      errMsg.includes('response_format')
-    ) {
-      logger.infoWithContext({
-        op: 'AI_API_FALLBACK',
-        message: 'json_schema response format not supported by model. Falling back to generateText with JSON mode.',
+    logger.warnWithContext({
+      op: 'AI_API_ERROR',
+      message: `Initial generateObject failed, attempting fallback. Error: ${errMsg}`,
+    });
+
+    try {
+      const fallbackResult = await generateObject({
+        model: await getModel(),
+        output: 'no-schema',
+        system:
+          getSystemPrompt(timezone) +
+          '\n\nReturn ONLY a valid JSON object matching the requested schema, with no markdown code blocks.',
+        prompt: userPrompt,
       });
 
-      try {
-        const fallbackResult = await generateObject({
-          model: await getModel(),
-          output: 'no-schema',
-          system:
-            getSystemPrompt(timezone) +
-            '\n\nReturn ONLY a valid JSON object matching the requested schema, with no markdown code blocks.',
-          prompt: userPrompt,
-        });
+      const taskObj = aiTaskSchema.parse(fallbackResult.object) as AiGenTask;
 
-        const taskObj = aiTaskSchema.parse(fallbackResult.object) as AiGenTask;
-
-        // Sanitize time format to strictly HH:MM (strip seconds, pad hour if needed)
-        if (taskObj.time?.includes(':')) {
-          const parts = taskObj.time.split(':');
-          if (parts.length >= 2) {
-            const hh = parts[0].padStart(2, '0');
-            const mm = parts[1].padStart(2, '0');
-            taskObj.time = `${hh}:${mm}`;
-          }
+      // Sanitize time format to strictly HH:MM (strip seconds, pad hour if needed)
+      if (taskObj.time?.includes(':')) {
+        const parts = taskObj.time.split(':');
+        if (parts.length >= 2) {
+          const hh = parts[0].padStart(2, '0');
+          const mm = parts[1].padStart(2, '0');
+          taskObj.time = `${hh}:${mm}`;
         }
-
-        // Sanitize duration format to strictly H:MM or HH:MM (strip seconds)
-        if (taskObj.duration?.includes(':')) {
-          const parts = taskObj.duration.split(':');
-          if (parts.length >= 2) {
-            const h = parts[0];
-            const m = parts[1].padStart(2, '0');
-            taskObj.duration = `${h}:${m}`;
-          }
-        }
-
-        logger.infoWithContext(
-          {
-            op: 'AI_API_FALLBACK',
-            message: `Task generated successfully via fallback (provider: ${process.env.AI_PROVIDER})`,
-          },
-          taskObj,
-        );
-
-        return taskObj;
-      } catch (fallbackError) {
-        logger.errorWithContext({
-          op: 'AI_API_FALLBACK_FAILED',
-          error: fallbackError,
-          message: 'AI fallback parsing or generation failed',
-        });
-        throw new Error(
-          `Failed to generate task details: ${fallbackError instanceof Error ? fallbackError.message : 'Unknown error'}`,
-        );
       }
-    }
 
-    logger.errorWithContext({
-      op: 'AI_API',
-      error,
-    });
-    throw new Error(
-      `Failed to generate task details: ${error instanceof Error ? error.message : 'Unknown error'}`,
-    );
+      // Sanitize duration format to strictly H:MM or HH:MM (strip seconds)
+      if (taskObj.duration?.includes(':')) {
+        const parts = taskObj.duration.split(':');
+        if (parts.length >= 2) {
+          const h = parts[0];
+          const m = parts[1].padStart(2, '0');
+          taskObj.duration = `${h}:${m}`;
+        }
+      }
+
+      logger.infoWithContext(
+        {
+          op: 'AI_API_FALLBACK',
+          message: `Task generated successfully via fallback (provider: ${process.env.AI_PROVIDER})`,
+        },
+        taskObj,
+      );
+
+      return taskObj;
+    } catch (fallbackError) {
+      logger.errorWithContext({
+        op: 'AI_API_FALLBACK_FAILED',
+        error: fallbackError,
+        message: 'AI fallback parsing or generation failed',
+      });
+      throw new Error(
+        `Failed to generate task details: ${fallbackError instanceof Error ? fallbackError.message : 'Unknown error'}`,
+      );
+    }
   }
 };
