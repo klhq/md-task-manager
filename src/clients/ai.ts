@@ -182,6 +182,70 @@ export const generateAiTask = async (
 
     return taskObj;
   } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    if (
+      errMsg.includes('json_schema') ||
+      errMsg.includes('response format') ||
+      errMsg.includes('response_format')
+    ) {
+      logger.infoWithContext({
+        op: 'AI_API_FALLBACK',
+        message: 'json_schema response format not supported by model. Falling back to generateText with JSON mode.',
+      });
+
+      try {
+        const fallbackResult = await generateObject({
+          model: await getModel(),
+          output: 'no-schema',
+          system:
+            getSystemPrompt(timezone) +
+            '\n\nReturn ONLY a valid JSON object matching the requested schema, with no markdown code blocks.',
+          prompt: userPrompt,
+        });
+
+        const taskObj = aiTaskSchema.parse(fallbackResult.object) as AiGenTask;
+
+        // Sanitize time format to strictly HH:MM (strip seconds, pad hour if needed)
+        if (taskObj.time?.includes(':')) {
+          const parts = taskObj.time.split(':');
+          if (parts.length >= 2) {
+            const hh = parts[0].padStart(2, '0');
+            const mm = parts[1].padStart(2, '0');
+            taskObj.time = `${hh}:${mm}`;
+          }
+        }
+
+        // Sanitize duration format to strictly H:MM or HH:MM (strip seconds)
+        if (taskObj.duration?.includes(':')) {
+          const parts = taskObj.duration.split(':');
+          if (parts.length >= 2) {
+            const h = parts[0];
+            const m = parts[1].padStart(2, '0');
+            taskObj.duration = `${h}:${m}`;
+          }
+        }
+
+        logger.infoWithContext(
+          {
+            op: 'AI_API_FALLBACK',
+            message: `Task generated successfully via fallback (provider: ${process.env.AI_PROVIDER})`,
+          },
+          taskObj,
+        );
+
+        return taskObj;
+      } catch (fallbackError) {
+        logger.errorWithContext({
+          op: 'AI_API_FALLBACK_FAILED',
+          error: fallbackError,
+          message: 'AI fallback parsing or generation failed',
+        });
+        throw new Error(
+          `Failed to generate task details: ${fallbackError instanceof Error ? fallbackError.message : 'Unknown error'}`,
+        );
+      }
+    }
+
     logger.errorWithContext({
       op: 'AI_API',
       error,
