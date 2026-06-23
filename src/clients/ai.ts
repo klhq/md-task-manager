@@ -8,26 +8,40 @@ const aiTaskSchema = z.object({
   name: z.string().describe('Concise title of the task.'),
   date: z
     .string()
-    .describe('YYYY-MM-DD format based on timezone. Use "" if missing.'),
-  time: z.string().describe('24h HH:MM format. Use "" if missing.'),
+    .describe('YYYY-MM-DD format based on timezone. Use "" if missing.')
+    .nullish()
+    .transform((val) => val ?? ''),
+  time: z
+    .string()
+    .describe('24h HH:MM format. Use "" if missing.')
+    .nullish()
+    .transform((val) => val ?? ''),
   duration: z
     .string()
     .describe(
       'H:MM format. Default to "1:00" if date/time exist but duration is missing.',
-    ),
+    )
+    .nullish()
+    .transform((val) => val ?? ''),
   description: z
     .string()
-    .describe('AI-generated insight/note. DO NOT include tags here.'),
+    .describe('AI-generated insight/note. DO NOT include tags here.')
+    .nullish()
+    .transform((val) => val ?? ''),
   link: z
     .string()
     .describe(
       'Official resolved URL for brands (e.g., shopee.tw) or the raw URL.',
-    ),
+    )
+    .nullish()
+    .transform((val) => val ?? ''),
   recurrenceRule: z
     .string()
     .describe(
       'RRULE recurrence string (RFC 5545 subset). Examples: "FREQ=DAILY", "FREQ=WEEKLY;BYDAY=MO", "FREQ=WEEKLY;BYDAY=MO,WE,FR", "FREQ=WEEKLY;INTERVAL=2;BYDAY=FR", "FREQ=MONTHLY;BYMONTHDAY=15", "FREQ=YEARLY". Use "" if the task is not recurring.',
-    ),
+    )
+    .nullish()
+    .transform((val) => val ?? ''),
 });
 
 const getModel = async () => {
