@@ -20,7 +20,9 @@ const aiTaskSchema = z.object({
   duration: robustString(
     'H:MM format. Default to "1:00" if date/time exist but duration is missing.',
   ),
-  description: robustString('AI-generated insight/note. DO NOT include tags here.'),
+  description: robustString(
+    'AI-generated insight/note. DO NOT include tags here.',
+  ),
   link: robustString(
     'Official resolved URL for brands (e.g., shopee.tw) or the raw URL.',
   ),
