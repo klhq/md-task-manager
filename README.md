@@ -40,12 +40,22 @@ Your tasks live in a **Markdown file in your own GitHub repo** — not locked in
 - **Just type naturally** — *"Buy milk tomorrow at 3pm #shopping"* → AI extracts title, date, time, duration, description, and links automatically
 - **Your data, your repo** — Tasks stored as a Markdown table in GitHub, editable anywhere
 - **Google Calendar sync** — Events created/updated/deleted automatically when tasks change
-- **Multi-provider AI** — Choose Gemini, OpenAI, Anthropic, or any OpenAI-compatible provider (Groq, Together, Ollama)
+- **Multi-provider AI** — Choose Gemini, OpenAI, Anthropic, or any OpenAI-compatible provider (Groq, Together, Ollama, DeepInfra)
 - **Smart task picker** — Inline keyboard for completing, editing, and removing tasks
 - **Timezone-aware** — Set your timezone once, all dates/times convert automatically
 - **Daily reminders** — Cron-triggered notification for today's tasks
 - **GitHub webhook sync** — Edit tasks on GitHub? The bot detects changes and notifies you
 - **Secure** — Allowlist-based access, webhook signature verification
+
+## AI Model Compatibility
+
+The AI extraction layer works with a wide range of models, including smaller or self-hosted LLMs that don't fully support structured outputs:
+
+1. **Structured output (preferred)**: Sends the Zod schema as `json_schema` (Structured Outputs). Best accuracy on Gemini, GPT-4o, Claude, etc.
+2. **JSON mode fallback (automatic)**: If the first attempt fails for any reason, automatically retries with `type: "json_object"` (standard JSON mode) — no configuration needed.
+3. **Robust parsing**: Optional fields use a `robustString` preprocessor that safely coerces `null`, `undefined`, or non-string values to `""`, preventing crashes from models that omit fields.
+
+**Tested providers via `OPENAI_BASE_URL`**: DeepInfra, Groq, Together, Ollama.
 
 ## Editions
 
