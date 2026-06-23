@@ -150,15 +150,37 @@ export const generateAiTask = async (
       throw new Error('AI returned an empty response. Please try again.');
     }
 
+    const taskObj = result.object;
+
+    // Sanitize time format to strictly HH:MM (strip seconds, pad hour if needed)
+    if (taskObj.time?.includes(':')) {
+      const parts = taskObj.time.split(':');
+      if (parts.length >= 2) {
+        const hh = parts[0].padStart(2, '0');
+        const mm = parts[1].padStart(2, '0');
+        taskObj.time = `${hh}:${mm}`;
+      }
+    }
+
+    // Sanitize duration format to strictly H:MM or HH:MM (strip seconds)
+    if (taskObj.duration?.includes(':')) {
+      const parts = taskObj.duration.split(':');
+      if (parts.length >= 2) {
+        const h = parts[0];
+        const m = parts[1].padStart(2, '0');
+        taskObj.duration = `${h}:${m}`;
+      }
+    }
+
     logger.infoWithContext(
       {
         op: 'AI_API',
         message: `Task generated successfully (provider: ${process.env.AI_PROVIDER})`,
       },
-      result.object,
+      taskObj,
     );
 
-    return result.object;
+    return taskObj;
   } catch (error) {
     logger.errorWithContext({
       op: 'AI_API',
