@@ -37,7 +37,11 @@ export default async function handler(
   const response = await app.fetch(request);
 
   // Write the Hono Response back to Node.js ServerResponse
-  res.writeHead(response.status, Object.fromEntries(response.headers.entries()));
+  const responseHeaders: Record<string, string> = {};
+  response.headers.forEach((value, key) => {
+    responseHeaders[key] = value;
+  });
+  res.writeHead(response.status, responseHeaders);
   const responseBody = await response.text();
   res.end(responseBody);
 }
