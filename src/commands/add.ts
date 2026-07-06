@@ -1,4 +1,4 @@
-import { Composer } from 'grammy';
+import { Composer, InlineKeyboard } from 'grammy';
 import { generateAiTask } from '../clients/ai.js';
 import { Command } from '../core/config.js';
 import type { Task } from '../core/types.js';
@@ -30,7 +30,10 @@ export const addCommand = async (ctx: BotContext) => {
     ctx.session.awaitingAdd = true;
     return ctx.reply(
       '📝 What task would you like to add?\n\n_e.g. "Buy groceries tomorrow at 15:00 #shopping"_',
-      { parse_mode: 'Markdown' },
+      {
+        parse_mode: 'Markdown',
+        reply_markup: new InlineKeyboard().text('❌ Cancel', 'add_cancel'),
+      },
     );
   }
 
@@ -39,6 +42,12 @@ export const addCommand = async (ctx: BotContext) => {
 
 // Composer to handle the follow-up text message
 export const addSceneComposer = new Composer<BotContext>();
+
+addSceneComposer.callbackQuery('add_cancel', async (ctx) => {
+  await ctx.answerCallbackQuery();
+  ctx.session.awaitingAdd = undefined;
+  await ctx.editMessageText('❌ Add cancelled.');
+});
 
 addSceneComposer.on('message:text', async (ctx, next) => {
   if (!ctx.session.awaitingAdd) return next();
