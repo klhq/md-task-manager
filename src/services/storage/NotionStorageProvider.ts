@@ -171,7 +171,7 @@ export const buildNotionProperties = (
       : { select: null },
     Tags: {
       multi_select: (task.tags || [])
-        .filter((t) => Boolean(t && t.trim()))
+        .filter((t) => Boolean(t?.trim()))
         .map((name) => ({ name: name.trim() })),
     },
     Description: {
@@ -384,7 +384,7 @@ export class NotionStorageProvider implements IStorageProvider {
     }
   }
 
-  async initTasks(): Promise<void> {
+  async initTasks(): Promise<string | undefined> {
     try {
       const db = await retrieveDatabase(this.databaseId, this.accessToken);
 
@@ -413,6 +413,7 @@ export class NotionStorageProvider implements IStorageProvider {
         op: 'NOTION_INIT_TASKS',
         message: 'Initialized Notion database schema',
       });
+      return undefined;
     } catch (error) {
       logger.errorWithContext({
         op: 'NOTION_INIT_TASKS',
