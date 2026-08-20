@@ -95,7 +95,8 @@ src/
   - `syncView.ts`: GitHub Sync notifications.
 - **Services**: Located in `src/services/`. Contains the core logic.
   - `markdownParser.ts`: Parses the task table.
-  - `saveTasks.ts`: Serializes and persists data.
+  - `storage/`: Storage provider layer (`GitHubStorageProvider`, `NotionStorageProvider`, `factory.ts`).
+  - `queryTasks.ts` & `saveTasks.ts`: Dispatches to active storage provider.
   - `githubWebhookHandler.ts`: Processes incoming webhooks.
 
 ## 6. Development Rules for Agents

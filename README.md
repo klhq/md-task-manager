@@ -38,7 +38,7 @@ Your tasks live in a **Markdown file in your own GitHub repo** — not locked in
 ## Features
 
 - **Just type naturally** — *"Buy milk tomorrow at 3pm #shopping"* → AI extracts title, date, time, duration, description, and links automatically
-- **Your data, your repo** — Tasks stored as a Markdown table in GitHub, editable anywhere
+- **Your data, your choice** — Store tasks in a GitHub Markdown table or a Notion database, editable anywhere
 - **Google Calendar sync** — Events created/updated/deleted automatically when tasks change
 - **Multi-provider AI** — Choose Gemini, OpenAI, Anthropic, or any OpenAI-compatible provider (Groq, Together, Ollama, DeepInfra)
 - **Smart task picker** — Inline keyboard for completing, editing, and removing tasks
@@ -62,7 +62,7 @@ The AI extraction layer works with a wide range of models, including smaller or 
 |  | Self-hosted (this repo) | Pro ([@LazyMdTaskBot](https://t.me/LazyMdTaskBot)) |
 |:--|:--|:--|
 | Users | Single-user (allowlist) | Public (blocklist moderation) |
-| Storage | GitHub PAT + Markdown file | GitHub App + Cloud DB |
+| Storage | GitHub Markdown / Notion DB (`.env`) | GitHub App + Notion OAuth + Cloud DB |
 | Calendar | Service account | Per-user OAuth |
 | Caching | None | Redis |
 | Notifications | Vercel cron | QStash hourly cron |
@@ -99,8 +99,11 @@ bun run dev
 |:---------|:------------|:---------|
 | `TELEGRAM_BOT_TOKEN` | Bot token from BotFather | Yes |
 | `TELEGRAM_BOT_ALLOWLIST` | Comma-separated Telegram user IDs | Yes |
-| `PROVIDER_API_KEY` | GitHub Personal Access Token | Yes |
-| `FILE_PATH` | Full URL to your task file on GitHub | Yes |
+| `STORAGE_PROVIDER` | `github` (default) or `notion` | Optional |
+| `PROVIDER_API_KEY` | GitHub Personal Access Token | If `STORAGE_PROVIDER=github` |
+| `FILE_PATH` | Full URL to your task file on GitHub | If `STORAGE_PROVIDER=github` |
+| `NOTION_TOKEN` | Notion internal connection token | If `STORAGE_PROVIDER=notion` |
+| `NOTION_DATABASE_ID` | Notion Database ID (32 hex characters) or URL | If `STORAGE_PROVIDER=notion` |
 | `AI_PROVIDER` | `gemini`, `openai`, or `anthropic` | Yes |
 | `AI_MODEL` | Model name (e.g., `gemini-2.5-flash`, `gpt-4o`) | Yes |
 | `GOOGLE_GENERATIVE_AI_API_KEY` | Gemini API key | If `gemini` |
