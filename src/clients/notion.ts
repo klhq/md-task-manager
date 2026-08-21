@@ -21,7 +21,7 @@ export interface NotionSelectOption {
 export interface NotionDatabasePropertySchema {
   id?: string;
   name?: string;
-  type: string;
+  type?: string;
   title?: Record<string, never>;
   rich_text?: Record<string, never>;
   checkbox?: Record<string, never>;
@@ -152,6 +152,27 @@ const makeNotionRequest = async <T>(
 };
 
 /**
+ * Sanitizes property schema definitions for Notion API by omitting the top-level 'type',
+ * 'id', and 'name' fields which cause Notion API validation errors in POST/PATCH database calls.
+ */
+export const sanitizePropertySchemasForNotionApi = (
+  properties: Record<string, NotionDatabasePropertySchema>,
+): Record<string, unknown> => {
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, schema] of Object.entries(properties)) {
+    if (!schema) continue;
+    const {
+      type: _type,
+      id: _id,
+      name: _name,
+      ...rest
+    } = schema as Record<string, unknown>;
+    sanitized[key] = rest;
+  }
+  return sanitized;
+};
+
+/**
  * Retrieve database information including its properties schema.
  */
 export const retrieveDatabase = async (
@@ -177,12 +198,13 @@ export const updateDatabaseSchema = async (
   token: string,
 ): Promise<NotionDatabaseResponse> => {
   const normalizedId = normalizeDatabaseId(databaseId);
+  const sanitizedProperties = sanitizePropertySchemasForNotionApi(properties);
   return makeNotionRequest<NotionDatabaseResponse>(
     `/databases/${normalizedId}`,
     token,
     {
       method: 'PATCH',
-      body: JSON.stringify({ properties }),
+      body: JSON.stringify({ properties: sanitizedProperties }),
     },
   );
 };

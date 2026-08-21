@@ -22,12 +22,11 @@ export const REQUIRED_NOTION_PROPERTIES: Record<
   string,
   NotionDatabasePropertySchema
 > = {
-  Completed: { type: 'checkbox', checkbox: {} },
-  Date: { type: 'date', date: {} },
-  Time: { type: 'rich_text', rich_text: {} },
-  Duration: { type: 'rich_text', rich_text: {} },
+  Completed: { checkbox: {} },
+  Date: { date: {} },
+  Time: { rich_text: {} },
+  Duration: { rich_text: {} },
   Priority: {
-    type: 'select',
     select: {
       options: [
         { name: 'low', color: 'blue' },
@@ -37,20 +36,22 @@ export const REQUIRED_NOTION_PROPERTIES: Record<
       ],
     },
   },
-  Tags: { type: 'multi_select', multi_select: {} },
-  Description: { type: 'rich_text', rich_text: {} },
-  Link: { type: 'url', url: {} },
-  'Calendar Event ID': { type: 'rich_text', rich_text: {} },
-  Log: { type: 'rich_text', rich_text: {} },
-  'Recurrence Rule': { type: 'rich_text', rich_text: {} },
+  Tags: { multi_select: {} },
+  Description: { rich_text: {} },
+  Link: { url: {} },
+  'Calendar Event ID': { rich_text: {} },
+  Log: { rich_text: {} },
+  'Recurrence Rule': { rich_text: {} },
 };
 
 export const parseNotionPageToTask = (
   page: NotionPageResponse,
 ): Task | null => {
   const props = page.properties;
+  if (!props) return null;
 
-  let titleProp = props['Task Name'];
+  let titleProp =
+    props['Task Name'] || props.Task || props.Name || props.name || props.title;
   if (!titleProp) {
     const found = Object.values(props).find((p) => p.type === 'title');
     if (found) titleProp = found;
@@ -66,7 +67,17 @@ export const parseNotionPageToTask = (
     return null;
   }
 
-  const completed = Boolean(props.Completed?.checkbox);
+  // Check checkbox Completed or Status property (e.g. 'Done', 'Complete')
+  const statusName = (
+    props.Status?.select?.name ||
+    (props.Status as unknown as { status?: { name?: string } })?.status?.name ||
+    ''
+  ).toLowerCase();
+  const isStatusDone =
+    statusName === 'done' ||
+    statusName === 'completed' ||
+    statusName === 'complete';
+  const completed = Boolean(props.Completed?.checkbox || isStatusDone);
 
   const dateRaw = props.Date?.date?.start;
   const date = dateRaw ? dateRaw.split('T')[0] : undefined;
@@ -83,7 +94,12 @@ export const parseNotionPageToTask = (
       .join('')
       .trim() || undefined;
 
-  const priority = (props.Priority?.select?.name as Priority) || undefined;
+  const rawPriority =
+    props.Priority?.select?.name?.toLowerCase().trim() || undefined;
+  const priority =
+    rawPriority && ['urgent', 'high', 'medium', 'low'].includes(rawPriority)
+      ? (rawPriority as Priority)
+      : undefined;
 
   const tags =
     props.Tags?.multi_select && props.Tags.multi_select.length > 0
@@ -96,7 +112,15 @@ export const parseNotionPageToTask = (
       .join('')
       .trim() || undefined;
 
-  const link = props.Link?.url || undefined;
+  const link =
+    props.Link?.url ||
+    (props.Link?.rich_text
+      ? props.Link.rich_text
+          .map((t) => t.plain_text || t.text?.content || '')
+          .join('')
+          .trim()
+      : undefined) ||
+    undefined;
 
   const calendarEventId =
     props['Calendar Event ID']?.rich_text
