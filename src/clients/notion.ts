@@ -106,6 +106,18 @@ export const isValidNotionToken = (token: string): boolean => {
   );
 };
 
+/**
+ * Extracts a readable plain text title from a Notion database response object.
+ * Falls back to a short database ID descriptor if the title is empty.
+ */
+export const getNotionDatabaseTitle = (
+  db: Pick<NotionDatabaseResponse, 'id' | 'title'>,
+): string => {
+  const plain =
+    db.title?.map((t) => t.plain_text || t.text?.content || '').join('') || '';
+  return plain.trim() || `Database ${db.id.replace(/-/g, '').slice(0, 6)}`;
+};
+
 const makeNotionRequest = async <T>(
   endpoint: string,
   token: string,
